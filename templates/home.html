@@ -1,36 +1,309 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Terminal Demo</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css"
-    />
-    <style>
-      body {
-        margin: 0;
-        height: 100vh;
-        background: #000;
-      }
-      #terminal {
-        width: 100%;
-        height: 100%;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="terminal"></div>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Bash Terminal Emulator</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-    <script>
-      const term = new Terminal({
-        cursorBlink: true,
-        fontSize: 16,
-      });
-      term.open(document.getElementById('terminal'));
-      term.write('Hello from \x1B[1;3;31mterminal-cant-hurt-you\x1B[0m $ ');
-    </script>
-  </body>
+            body {
+                background-color: #1e1e1e;
+                font-family: "Courier New", monospace;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .terminal-container {
+                flex: 1;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            #terminal {
+                width: 100%;
+                height: 100%;
+                border-radius: 5px;
+                overflow: hidden;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+
+            .header {
+                background-color: #2d2d2d;
+                color: #ccc;
+                padding: 8px 15px;
+                font-size: 14px;
+                display: flex;
+                justify-content: space-between;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+            }
+
+            .controls {
+                display: flex;
+                gap: 8px;
+            }
+
+            .control-btn {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+            }
+
+            .close {
+                background-color: #ff5f56;
+            }
+
+            .minimize {
+                background-color: #ffbd2e;
+            }
+
+            .maximize {
+                background-color: #27c93f;
+            }
+
+            .footer {
+                background-color: #2d2d2d;
+                color: #ccc;
+                padding: 5px 15px;
+                font-size: 12px;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                display: flex;
+                justify-content: space-between;
+            }
+
+            .status {
+                display: flex;
+                gap: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="terminal-container">
+            <div class="header">
+                <div>bash — 80×24</div>
+                <div class="controls">
+                    <div class="control-btn close"></div>
+                    <div class="control-btn minimize"></div>
+                    <div class="control-btn maximize"></div>
+                </div>
+            </div>
+            <div id="terminal"></div>
+            <div class="footer">
+                <div>Terminal v1.0</div>
+                <div class="status">
+                    <span>UTF-8</span>
+                    <span>bash</span>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+        <script>
+            // Initialize terminal
+            const term = new Terminal({
+                cursorBlink: true,
+                fontSize: 14,
+                fontFamily: "'Courier New', monospace",
+                theme: {
+                    background: "#1e1e1e",
+                    foreground: "#f0f0f0",
+                    cursor: "#ffffff",
+                    selection: "#555555",
+                },
+            });
+
+            // Add fit addon to make terminal responsive
+            const fitAddon = new FitAddon.FitAddon();
+            term.loadAddon(fitAddon);
+
+            // Open terminal in container
+            term.open(document.getElementById("terminal"));
+            fitAddon.fit();
+
+            // Handle window resize
+            window.addEventListener("resize", () => {
+                fitAddon.fit();
+            });
+
+            // Terminal state
+            let currentLine = "";
+            let commandHistory = [];
+            let historyIndex = -1;
+            let currentUser = "user";
+            let currentHost = "localhost";
+            let currentDirectory = "~";
+
+            // Initial prompt
+            function writePrompt() {
+                term.write(
+                    `\r\n\x1b[32m${currentUser}@${currentHost}\x1b[0m:\x1b[34m${currentDirectory}\x1b[0m$ `,
+                );
+            }
+
+            // Write welcome message
+            term.write("Welcome to Bash Terminal Emulator");
+            term.write('\r\nType "help" to see available commands');
+            writePrompt();
+
+            // Process commands
+            function processCommand(command) {
+                const cmd = command.trim();
+
+                if (cmd === "") {
+                    return;
+                }
+
+                // Add to command history
+                commandHistory.push(cmd);
+                historyIndex = commandHistory.length;
+
+                // Parse command and arguments
+                const parts = cmd.split(" ");
+                const baseCmd = parts[0].toLowerCase();
+                const args = parts.slice(1);
+
+                switch (baseCmd) {
+                    case "help":
+                        term.write("\r\nAvailable commands:");
+                        term.write("\r\n  help     - Show this help message");
+                        term.write("\r\n  clear    - Clear the terminal");
+                        term.write("\r\n  ls       - List directory contents");
+                        term.write("\r\n  pwd      - Print working directory");
+                        term.write("\r\n  cd       - Change directory");
+                        term.write("\r\n  echo     - Display a line of text");
+                        term.write("\r\n  whoami   - Print current user");
+                        term.write(
+                            "\r\n  date     - Display current date and time",
+                        );
+                        term.write("\r\n  exit     - Exit the terminal");
+                        break;
+
+                    case "clear":
+                        term.clear();
+                        break;
+
+                    case "ls":
+                        term.write(
+                            "\r\nbin   dev   etc   home   lib   proc   tmp   usr   var",
+                        );
+                        break;
+
+                    case "pwd":
+                        term.write(`\r\n${currentDirectory}`);
+                        break;
+
+                    case "cd":
+                        if (args.length === 0 || args[0] === "~") {
+                            currentDirectory = "~";
+                        } else if (args[0] === "..") {
+                            if (currentDirectory !== "~") {
+                                const dirs = currentDirectory.split("/");
+                                dirs.pop();
+                                currentDirectory = dirs.join("/") || "~";
+                            }
+                        } else {
+                            currentDirectory = args[0];
+                        }
+                        break;
+
+                    case "echo":
+                        term.write(`\r\n${args.join(" ")}`);
+                        break;
+
+                    case "whoami":
+                        term.write(`\r\n${currentUser}`);
+                        break;
+
+                    case "date":
+                        term.write(`\r\n${new Date().toString()}`);
+                        break;
+
+                    case "exit":
+                        term.write("\r\nGoodbye!");
+                        setTimeout(() => {
+                            term.write("\r\n\r\n[Process completed]");
+                        }, 500);
+                        break;
+
+                    default:
+                        term.write(`\r\nbash: ${baseCmd}: command not found`);
+                        break;
+                }
+            }
+
+            // Handle terminal input
+            term.onData((data) => {
+                const code = data.charCodeAt(0);
+
+                // Handle special keys
+                if (code === 13) {
+                    // Enter key
+                    term.write("\r\n");
+                    processCommand(currentLine);
+                    currentLine = "";
+                    writePrompt();
+                } else if (code === 127) {
+                    // Backspace key
+                    if (currentLine.length > 0) {
+                        currentLine = currentLine.slice(0, -1);
+                        term.write("\b \b");
+                    }
+                } else if (code === 27) {
+                    // Escape sequences (arrows, etc.)
+                    // Handle arrow keys for command history
+                    if (data.length > 1 && data[1] === "[") {
+                        switch (data[2]) {
+                            case "A": // Up arrow
+                                if (historyIndex > 0) {
+                                    historyIndex--;
+                                    // Clear current line
+                                    term.write("\r\x1b[K");
+                                    currentLine = commandHistory[historyIndex];
+                                    term.write(currentLine);
+                                }
+                                break;
+                            case "B": // Down arrow
+                                if (historyIndex < commandHistory.length - 1) {
+                                    historyIndex++;
+                                    // Clear current line
+                                    term.write("\r\x1b[K");
+                                    currentLine = commandHistory[historyIndex];
+                                    term.write(currentLine);
+                                } else if (
+                                    historyIndex ===
+                                    commandHistory.length - 1
+                                ) {
+                                    historyIndex = commandHistory.length;
+                                    // Clear current line
+                                    term.write("\r\x1b[K");
+                                    currentLine = "";
+                                }
+                                break;
+                        }
+                    }
+                } else if (code >= 32 && code <= 126) {
+                    // Printable characters
+                    currentLine += data;
+                    term.write(data);
+                }
+            });
+
+            // Focus the terminal on load
+            term.focus();
+        </script>
+    </body>
 </html>
-
