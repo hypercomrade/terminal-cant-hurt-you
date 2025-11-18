@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+</head>
+<body>
+  <h1>Sign Up</h1>
+
+  {% if form.errors %}
+      <ul style="color:red;">
+          {% for field in form %}
+              {% for error in field.errors %}
+                  <li>{{ field.label }}: {{ error }}</li>
+              {% endfor %}
+          {% endfor %}
+          {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+          {% endfor %}
+      </ul>
+  {% endif %}
+
+  <form method="post">
+      {% csrf_token %}
+
+      <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
+      <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
+      <p>{{ form.username.label_tag }} {{ form.username }}</p>
+      <p>{{ form.password1.label_tag }} {{ form.password1 }}</p>
+      <p>{{ form.password2.label_tag }} {{ form.password2 }}</p>
+
+      <h3>Account Type</h3>
+      {{ form.role }}
+
+      <p>
+          {{ form.classroom_code.label_tag }} {{ form.classroom_code }}
+          {% if form.classroom_code.help_text %}<small>{{ form.classroom_code.help_text }}</small>{% endif %}
+      </p>
+
+      <button type="submit">Create Account</button>
+  </form>
+
+  <p>Already have an account? <a href="{% url 'signin' %}">Sign in</a></p>
+</body>
+</html>
