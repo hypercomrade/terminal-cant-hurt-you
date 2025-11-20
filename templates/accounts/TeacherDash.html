@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</h1>
+
+    <h2>Your classrooms</h2>
+
+    {% if classrooms %}
+        <ul>
+        {% for c in classrooms %}
+            <li>
+                <strong>{{ c.name }}</strong> – Code: {{ c.code }}
+
+                {% if c.students.all %}
+                    <div>
+                        <em>Students:</em>
+                        {% if c.students.count %}
+                            <ul>
+                                {% for s in c.students.all %}
+                                    <li>{{ s.user.first_name }} {{ s.user.last_name }} ({{ s.user.username }})</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No students have joined this class yet.</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no classrooms yet.</p>
+    {% endif %}
+
+    <h3>Create a new classroom</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="classroom_name" placeholder="Classroom name" required>
+        <button type="submit">Create</button>
+    </form>
+
+    <p><a href="{% url 'logout' %}">Log out</a></p>
+</body>
+</html>
