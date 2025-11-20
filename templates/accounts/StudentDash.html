@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+</head>
+<body>
+    <h1>Student Dashboard</h1>
+    <h2>Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</h2>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    {% if success %}
+        <p style="color:green;">{{ success }}</p>
+    {% endif %}
+
+    <h3>Your Classes</h3>
+    {% if classes %}
+        <ul>
+            {% for c in classes %}
+                <li>
+                    <strong>{{ c.name }}</strong><br>
+                    Teacher: {{ c.teacher.user.first_name }} {{ c.teacher.user.last_name }}<br>
+                    Code: {{ c.code }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You are not in any classes yet.</p>
+    {% endif %}
+
+    <h3>Join a New Class</h3>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="classroom_code" placeholder="Classroom code" required>
+        <button type="submit">Join</button>
+    </form>
+
+    <p><a href="{% url 'logout' %}">Log out</a></p>
+</body>
+</html>
