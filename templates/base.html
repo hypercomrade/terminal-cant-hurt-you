@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+            background-color: #f4f4f4;
+            border-bottom: 1px solid #000000;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-buttons a {
+            margin-left: 12px;
+            padding: 10px 18px;
+            background: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .nav-buttons a:hover {
+            background: #005fcc;
+        }
+
+        .logo-box {
+        width: 90px;      
+        height: 90px;     
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden; 
+    }
+
+    .logo-img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain; 
+    }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-container">
+       <img src="{% static "images/tchu_logo.png" %}" alt="Hi!" />
+    </div>
+
+
+    <div class="nav-buttons">
+        {% if user.is_authenticated %}
+            {% if user.role == "teacher" %}
+                <a href="{% url 'teacher_dashboard' %}">My Account</a>
+            {% elif user.role == "student" %}
+                <a href="{% url 'student_dashboard' %}">My Account</a>
+            {% elif user.role == "personal" %}
+                <a href="{% url 'personal_dashboard' %}">My Account</a>
+            {% endif %}
+            
+            <a href="{% url 'logout' %}">Logout</a>
+
+        {% else %}
+            <a href="{% url 'signup' %}">Sign Up</a>
+            <a href="{% url 'signin' %}">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>

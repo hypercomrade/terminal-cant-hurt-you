@@ -1,3 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+<body>
 <a href="{% url 'zsh_terminal' %}" class="terminal-link">
     Open ZSH Terminal
 </a>
@@ -9,3 +13,6 @@
 <a href="{% url 'powershell_terminal' %}" class="terminal-link">
     Open Powershell Terminal
 </a>
+</body>
+</div>
+{% endblock %}
