@@ -252,7 +252,6 @@
                 // Handle special keys
                 if (code === 13) {
                     // Enter key
-                    term.write("\r\n");
                     processCommand(currentLine);
                     currentLine = "";
                     writePrompt();

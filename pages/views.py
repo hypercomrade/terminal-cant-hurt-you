@@ -14,4 +14,7 @@ class ZshTerminal(TemplateView):
 class BashTerminal(TemplateView):
     template_name = "bash_terminal.html"
 
+class PowershellTerminal(TemplateView):
+    template_name = "powershell_terminal.html"
+
 

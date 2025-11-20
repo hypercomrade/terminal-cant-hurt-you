@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Powershell Terminal Emulator</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1e1e1e;
+            font-family: "Courier New", monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .terminal-container {
+            flex: 1;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #terminal {
+            width: 100%;
+            height: 100%;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .header, .footer {
+            background-color: #2d2d2d;
+            color: #ccc;
+            padding: 8px 15px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .close { background-color: #ff5f56; }
+        .minimize { background-color: #ffbd2e; }
+        .maximize { background-color: #27c93f; }
+
+        .footer {
+            font-size: 12px;
+            border-bottom-left-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .status {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="terminal-container">
+    <div class="header">
+        <div>PowerShell — 80x24</div>
+        <div class="controls">
+            <div class="control-btn close"></div>
+            <div class="control-btn minimize"></div>
+            <div class="control-btn maximize"></div>
+        </div>
+    </div>
+
+    <div id="terminal"></div>
+
+    <div class="footer">
+        <div>PowerShell Emulator v1.0</div>
+        <div class="status">
+            <span>UTF-8</span>
+            <span>PowerShell</span>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+
+<script>
+/* ---------------------------------------------------------
+   TERMINAL INITIALIZATION
+--------------------------------------------------------- */
+
+const term = new Terminal({
+    cursorBlink: true,
+    fontSize: 14,
+    fontFamily: "'Courier New', monospace",
+    theme: {
+        background: "#1e1e1e",
+        foreground: "#f0f0f0",
+        cursor: "#ffffff",
+        selection: "#555555"
+    }
+});
+
+const fitAddon = new FitAddon.FitAddon();
+term.loadAddon(fitAddon);
+term.open(document.getElementById("terminal"));
+fitAddon.fit();
+
+window.addEventListener("resize", () => fitAddon.fit());
+
+let currentLine = "";
+let commandHistory = [];
+let historyIndex = -1;
+let currentLocation = "C:\\Users\\User";
+
+/* ---------------------------------------------------------
+   VIRTUAL FILE SYSTEM
+--------------------------------------------------------- */
+
+let FS = {
+    "C:": {
+        "Users": {
+            "User": {
+                "readme.txt": "Welcome to the simulated PowerShell environment.",
+                "notes.txt": "Editable text file.",
+                "Folder": {
+                    "example.txt": "File inside Folder."
+                }
+            }
+        }
+    }
+};
+
+function pathToArray(path) {
+    return path.replace(/\\/g, "/").split("/");
+}
+
+function resolvePath(input) {
+    if (!input || input === ".") 
+        return pathToArray(currentLocation);
+
+    // go up one directory
+    if (input === "..") {
+        let arr = pathToArray(currentLocation);
+        arr.pop();
+        return arr;
+    }
+
+    // absolute path input (C:\Something)
+    if (input.match(/^[A-Za-z]:\\/)) {
+        return pathToArray(input);
+    }
+
+    // relative path (Folder, Folder\File, etc.)
+    return pathToArray(currentLocation + "\\" + input);
+}
+
+
+function getNode(pathArr) {
+    let node = FS;
+    for (let part of pathArr) {
+        if (!part) continue;
+        if (!(part in node)) return null;
+        node = node[part];
+    }
+    return node;
+}
+
+function isDir(node) {
+    return typeof node === "object";
+}
+
+/* ---------------------------------------------------------
+   POWERSHELL PROMPT
+--------------------------------------------------------- */
+
+function prompt() {
+    term.write(`\r\nPS ${currentLocation}> `);
+}
+
+term.write("PowerShell Emulator\r\nType 'Get-Help' for assistance.");
+prompt();
+
+/* ---------------------------------------------------------
+   COMMAND IMPLEMENTATIONS
+--------------------------------------------------------- */
+
+function processCommand(input) {
+    const raw = input.trim();
+    if (!raw) return;
+
+    commandHistory.push(raw);
+    historyIndex = commandHistory.length;
+
+    const parts = raw.split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+/* ---------------------------------------------------------
+   EASY POWERSHELL COMMANDS (and support)
+--------------------------------------------------------- */
+
+    switch (cmd) {
+
+        /* Get-Help --------------------------------------------------------- */
+        case "get-help":
+        case "help":
+            term.write("\r\nAvailable PowerShell Commands:");
+            term.write("\r\n  Get-ChildItem (ls)");
+            term.write("\r\n  Set-Location (cd)");
+            term.write("\r\n  Get-Content");
+            term.write("\r\n  Set-Content");
+            term.write("\r\n  Add-Content");
+            term.write("\r\n  New-Item");
+            term.write("\r\n  Remove-Item");
+            term.write("\r\n  Copy-Item");
+            term.write("\r\n  Move-Item");
+            term.write("\r\n  Get-Command");
+            term.write("\r\n  Get-Alias");
+            break;
+
+        /* Get-Command ------------------------------------------------------ */
+        case "get-command":
+            term.write("\r\nSimulated Commands:");
+            term.write("\r\nGet-ChildItem, Set-Location, Get-Content, Set-Content");
+            term.write("\r\nAdd-Content, New-Item, Remove-Item, Copy-Item, Move-Item");
+            break;
+
+        /* Get-Alias -------------------------------------------------------- */
+        case "get-alias":
+            term.write("\r\nAliases:");
+            term.write("\r\nls -> Get-ChildItem");
+            term.write("\r\ncd -> Set-Location");
+            term.write("\r\ncat, gc -> Get-Content");
+            term.write("\r\ncp -> Copy-Item");
+            term.write("\nrm -> Remove-Item");
+            break;
+
+        /* Get-ChildItem ---------------------------------------------------- */
+        case "ls":
+        case "gci":
+        case "get-childitem": {
+            const node = getNode(pathToArray(currentLocation));
+            if (!node || !isDir(node)) {
+                term.write("\r\nError: Directory not found.");
+                break;
+            }
+            term.write("\r\n" + Object.keys(node).join("    "));
+            break;
+        }
+
+        /* Set-Location ----------------------------------------------------- */
+        case "cd":
+        case "sl":
+        case "set-location": {
+            const target = args[0] || "";
+            const resolved = resolvePath(target);
+            const node = getNode(resolved);
+
+            if (!node || !isDir(node)) {
+                term.write(`\r\nSet-Location : Cannot find path '${target}'`);
+                break;
+            }
+
+            currentLocation = resolved.join("\\");
+            break;
+        }
+
+        /* Get-Content ------------------------------------------------------ */
+        case "gc":
+        case "cat":
+        case "get-content": {
+            const p = resolvePath(args[0]);
+            const node = getNode(p);
+            if (!node || typeof node !== "string") {
+                term.write("\r\nGet-Content : File not found.");
+                break;
+            }
+            term.write("\r\n" + node);
+            break;
+        }
+
+        /* Set-Content ------------------------------------------------------ */
+        case "set-content": {
+            if (args.length < 2) {
+                term.write("\r\nUsage: Set-Content <file> <text>");
+                break;
+            }
+            const p = resolvePath(args[0]);
+            const parent = getNode(p.slice(0, -1));
+            parent[p.at(-1)] = args.slice(1).join(" ");
+            term.write("\r\nContent written.");
+            break;
+        }
+
+        /* Add-Content ------------------------------------------------------ */
+        case "add-content": {
+            if (args.length < 2) {
+                term.write("\r\nUsage: Add-Content <file> <text>");
+                break;
+            }
+            const p = resolvePath(args[0]);
+            const parent = getNode(p.slice(0, -1));
+            const name = p.at(-1);
+
+            if (typeof parent[name] !== "string")
+                parent[name] = "";
+
+            parent[name] += "\n" + args.slice(1).join(" ");
+            term.write("\r\nContent appended.");
+            break;
+        }
+
+        /* New-Item --------------------------------------------------------- */
+        case "ni":
+        case "new-item": {
+            if (!args[0]) {
+                term.write("\r\nUsage: New-Item <filename>");
+                break;
+            }
+            const p = resolvePath(args[0]);
+            const parent = getNode(p.slice(0, -1));
+            parent[p.at(-1)] = "";
+            term.write("\r\nNew file created.");
+            break;
+        }
+
+        /* Remove-Item ------------------------------------------------------ */
+        case "rm":
+        case "ri":
+        case "remove-item": {
+            if (!args[0]) {
+                term.write("\r\nUsage: Remove-Item <path>");
+                break;
+            }
+            const p = resolvePath(args[0]);
+            const parent = getNode(p.slice(0, -1));
+            delete parent[p.at(-1)];
+            term.write("\r\nItem removed.");
+            break;
+        }
+
+        /* Copy-Item -------------------------------------------------------- */
+        case "copy-item":
+        case "cp": {
+            if (args.length < 2) {
+                term.write("\r\nUsage: Copy-Item <src> <dest>");
+                break;
+            }
+
+            const sourceNode = getNode(resolvePath(args[0]));
+            if (!sourceNode) {
+                term.write("\r\nSource not found.");
+                break;
+            }
+
+            const dest = resolvePath(args[1]);
+            const destParent = getNode(dest.slice(0, -1));
+            destParent[dest.at(-1)] = structuredClone(sourceNode);
+
+            term.write("\r\nCopied.");
+            break;
+        }
+
+        /* Move-Item -------------------------------------------------------- */
+        case "move-item":
+        case "mv": {
+            if (args.length < 2) {
+                term.write("\r\nUsage: Move-Item <src> <dest>");
+                break;
+            }
+
+            const srcP = resolvePath(args[0]);
+            const srcParent = getNode(srcP.slice(0, -1));
+            const srcNode = getNode(srcP);
+
+            if (!srcNode) {
+                term.write("\r\nSource not found.");
+                break;
+            }
+
+            const destP = resolvePath(args[1]);
+            const destParent = getNode(destP.slice(0, -1));
+
+            destParent[destP.at(-1)] = srcNode;
+            delete srcParent[srcP.at(-1)];
+
+            term.write("\r\nMoved.");
+            break;
+        }
+
+        /* Unknown ----------------------------------------------------------- */
+        default:
+            term.write(`\r\n${raw} : The term '${raw}' is not recognized as a PowerShell command.`);
+            break;
+    }
+}
+
+/* ---------------------------------------------------------
+   TERMINAL INPUT HANDLING
+--------------------------------------------------------- */
+
+term.onData(data => {
+    const code = data.charCodeAt(0);
+
+    if (code === 13) {
+        processCommand(currentLine);
+        currentLine = "";
+        prompt();
+    }
+    else if (code === 127) {
+        if (currentLine.length > 0) {
+            currentLine = currentLine.slice(0, -1);
+            term.write("\b \b");
+        }
+    }
+    else if (code === 27 && data.length > 1 && data[1] === "[") {
+        if (data[2] === "A") { // ↑
+            if (historyIndex > 0) {
+                historyIndex--;
+                clearLine();
+                currentLine = commandHistory[historyIndex];
+                term.write(currentLine);
+            }
+        }
+        else if (data[2] === "B") { // ↓
+            if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                clearLine();
+                currentLine = commandHistory[historyIndex];
+                term.write(currentLine);
+            } else {
+                clearLine();
+                currentLine = "";
+            }
+        }
+    }
+    else if (code >= 32 && code <= 126) {
+        currentLine += data;
+        term.write(data);
+    }
+});
+
+function clearLine() {
+    term.write("\r\x1b[KPS " + currentLocation + "> ");
+}
+
+term.focus();
+</script>
+</body>
+</html>
