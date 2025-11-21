@@ -1,5 +1,8 @@
+
 <!DOCTYPE html>
 <html>
+{% extends "base.html" %}
+{% block content %}
 <head>
     <title>Teacher Dashboard</title>
 </head>
@@ -45,3 +48,4 @@
     <p><a href="{% url 'logout' %}">Log out</a></p>
 </body>
 </html>
+{% endblock %}

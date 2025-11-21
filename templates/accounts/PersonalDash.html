@@ -1,5 +1,10 @@
+
+
 <!DOCTYPE html>
 <html>
+
+{% entends "base.html" %}
+{% block content %}
 <head>
     <title>Personal Dashboard</title>
 </head>
@@ -10,3 +15,4 @@
     <p><a href="{% url 'logout' %}">Log out</a></p>
 </body>
 </html>
+{% endblock %}

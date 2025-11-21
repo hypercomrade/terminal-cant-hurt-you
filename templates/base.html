@@ -64,6 +64,7 @@
 
     <div class="nav-buttons">
         {% if user.is_authenticated %}
+        <span style="color:white">Hi, {{ user.username }} </span>
             {% if user.role == "teacher" %}
                 <a href="{% url 'teacher_dashboard' %}">My Account</a>
             {% elif user.role == "student" %}
