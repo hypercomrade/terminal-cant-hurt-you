@@ -15,8 +15,8 @@
         }
 
         body {
-            background-color: #1e1e1e;
-            font-family: "Courier New", monospace;
+            background-color: #000000;
+            font-family: "Segoe UI", monospace;
             height: 100vh;
             display: flex;
             flex-direction: column;
@@ -33,18 +33,20 @@
         #terminal {
             width: 100%;
             height: 100%;
-            border-radius: 5px;
+            border-radius: 0px;
+            background-color:#ccc;
             overflow: hidden;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
         .header, .footer {
-            background-color: #2d2d2d;
-            color: #ccc;
-            padding: 8px 15px;
+            background-color: #ccc;
+            color: #000000;
+            padding: 10px 10px;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
         }
 
         .controls {
@@ -57,10 +59,6 @@
             height: 12px;
             border-radius: 50%;
         }
-
-        .close { background-color: #ff5f56; }
-        .minimize { background-color: #ffbd2e; }
-        .maximize { background-color: #27c93f; }
 
         .footer {
             font-size: 12px;
@@ -78,7 +76,7 @@
 <body>
 <div class="terminal-container">
     <div class="header">
-        <div>PowerShell — 80x24</div>
+        <div>TCHY PowerShell</div>
         <div class="controls">
             <div class="control-btn close"></div>
             <div class="control-btn minimize"></div>
@@ -108,12 +106,12 @@
 const term = new Terminal({
     cursorBlink: true,
     fontSize: 14,
-    fontFamily: "'Courier New', monospace",
+    fontFamily: "'Cascadia Mono', monospace",
     theme: {
-        background: "#1e1e1e",
+        background: "#24245d",
         foreground: "#f0f0f0",
         cursor: "#ffffff",
-        selection: "#555555"
+        selection: "#555555",
     }
 });
 
@@ -407,7 +405,8 @@ function processCommand(input) {
 
         /* Unknown ----------------------------------------------------------- */
         default:
-            term.write(`\r\n${raw} : The term '${raw}' is not recognized as a PowerShell command.`);
+            /*term.write(`\r\n${raw} : The term '${raw}' is not recognized as a PowerShell command.`);*/
+            term.write(`\r\n\x1b[48;2;0;0;0m\x1b[31mPS C: The term ${raw} is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.\x1b[0m`);
             break;
     }
 }
