@@ -3,3 +3,5 @@ Names: terminal-cant-hurt-you
 Scripting language terminals in the browser, allow you to choose which one to learn and level up as you go.
 
 Profiles that store your progress.
+
+Smooth user interface?
