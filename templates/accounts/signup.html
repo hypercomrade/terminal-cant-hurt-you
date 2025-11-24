@@ -22,9 +22,10 @@
   <form method="post">
       {% csrf_token %}
 
+      <p>{{ form.username.label_tag }} {{ form.username }}</p>
       <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
       <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
-      <p>{{ form.username.label_tag }} {{ form.username }}</p>
+      <p>{{ form.email.label_tag }} {{ form.email }}</p>
       <p>{{ form.password1.label_tag }} {{ form.password1 }}</p>
       <p>{{ form.password2.label_tag }} {{ form.password2 }}</p>
 

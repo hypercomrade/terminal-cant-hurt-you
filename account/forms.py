@@ -17,9 +17,10 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = [
+            'username',
             'first_name',
             'last_name',
-            'username',
+            'email',
             'password1',
             'password2',
             'role',
@@ -30,6 +31,10 @@ class SignUpForm(UserCreationForm):
         cleaned_data = super().clean()
         role = cleaned_data.get('role')
         classroom_code = cleaned_data.get('classroom_code')
+
+        if classroom_code:
+            classroom_code = classroom_code.strip().upper()
+            cleaned_data['classroom_code'] = classroom_code
 
         if role == 'student':
             if not classroom_code:

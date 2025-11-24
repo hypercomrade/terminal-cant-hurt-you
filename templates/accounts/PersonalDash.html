@@ -1,0 +1,18 @@
+
+
+<!DOCTYPE html>
+<html>
+
+{% entends "base.html" %}
+{% block content %}
+<head>
+    <title>Personal Dashboard</title>
+</head>
+<body>
+    <h1>Personal Dashboard</h1>
+    <p>This space is reserved for personal accounts. (Blank for now 👍)</p>
+
+    <p><a href="{% url 'logout' %}">Log out</a></p>
+</body>
+</html>
+{% endblock %}
