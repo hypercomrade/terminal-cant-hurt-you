@@ -1,0 +1,133 @@
+/* Centered logo container */
+.logo-container-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Allows clicks to pass through to nav buttons */
+}
+
+.logo-container-center * {
+    pointer-events: auto; /* Re-enable clicks on logo elements */
+}
+
+/* Updated header for centered logo */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 25px;
+    background-color: #ffffff;
+    border-bottom: 4px solid #000000;
+    border-left: 4px solid #000000;
+    border-right: 4px solid #000000;
+    position: relative;
+    min-height: 120px; /* Give enough space for centered logo */
+}
+
+header::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    border: 4px solid #000000;
+    background: #f8f8f8;
+    z-index: -1;
+}
+
+/* Logo box with retro pixel borders */
+.logo-box {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: white;
+    position: relative;
+}
+
+.logo-box.pixel-border2 {
+    border: 4px solid #000000;
+}
+
+.logo-box.pixel-border2::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    border: 4px solid #000000;
+    background: #f0f0f0;
+    z-index: -1;
+}
+
+.logo-img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+}
+
+/* Ensure nav buttons stay on the right */
+.nav-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 10; /* Ensure buttons stay above centered logo */
+    position: relative;
+}
+
+/* Navigation buttons styling */
+.nav-buttons a {
+    padding: 12px 20px;
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    border: 4px solid #000000;
+    position: relative;
+    transition: all 0.1s ease;
+    box-shadow: 4px 4px 0 #000;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+}
+
+.nav-buttons a:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000;
+    background: #f0f0f0;
+}
+
+.nav-buttons span {
+    color: #000;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Different colors for different user roles */
+.nav-buttons a[href*="teacher"] {
+    background: #FD91C6;
+}
+
+.nav-buttons a[href*="student"] {
+    background: #FFF026;
+}
+
+.nav-buttons a[href*="personal"] {
+    background: #91C6FD;
+}
+
+.nav-buttons a[href*="logout"] {
+    background: #cccccc;
+}

@@ -1,18 +1,57 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block content %}
-<div>
-<body>
-<a href="{% url 'zsh_terminal' %}" class="terminal-link">
-    Open ZSH Terminal
-</a>
 
-<a href="{% url 'bash_terminal' %}" class="terminal-link">
-    Open Bash Terminal
-</a>
 
-<a href="{% url 'powershell_terminal' %}" class="terminal-link">
-    Open Powershell Terminal
-</a>
-</body>
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+
+<div class="hero-section pixel-border2">
+    <h1 class="hero-title">Welcome</h1>
+    <p class="hero-subtitle">Access multiple terminal environments in one place</p>
+    
+    <div class="action-buttons">
+        <a href="{% url 'zsh_terminal' %}" class="action-button primary">
+            🖥️ ZSH Terminal
+        </a>
+        <a href="{% url 'bash_terminal' %}" class="action-button secondary">
+            💻 Bash Terminal
+        </a>
+        <a href="{% url 'powershell_terminal' %}" class="action-button tertiary">
+            ⚡ PowerShell
+        </a>
+    </div>
 </div>
+
+<div class="feature-grid">
+    
+    <div class="feature-box">
+        <div class="feature-icon">🔧</div>
+        <h3 class="feature-title">Multiple Environments</h3>
+        <p>ZSH, Bash, PowerShell - all in one platform</p>
+    </div>
+    
+    <div class="feature-box">
+        <div class="feature-icon">👥</div>
+        <h3 class="feature-title">Role-Based Access</h3>
+        <p>Different interfaces for students and teachers</p>
+    </div>
+</div>
+
+{% if not user.is_authenticated %}
+<div class="hero-section" style="text-align: center;">
+    <h2 style="font-family: 'Courier New', monospace;">Get Started Today</h2>
+    <div class="action-buttons">
+        <a href="{% url 'signup' %}" class="action-button" style="background: #91FD91;">
+            Sign Up
+        </a>
+        <a href="{% url 'signin' %}" class="action-button" style="background: #FD9191;">
+            Sign In
+        </a>
+    </div>
+</div>
+{% endif %}
+
+
+
 {% endblock %}

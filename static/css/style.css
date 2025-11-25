@@ -1,0 +1,116 @@
+/* Pixel border styles */
+.pixel-border2 {
+    border: 4px solid #000;
+    position: relative;
+    background: white;
+}
+
+.pixel-border2-slim {
+    border: 2px solid #000;
+    position: relative;
+}
+
+/* Terminal link styles with pixel art aesthetic */
+.terminal-link {
+    display: inline-block;
+    padding: 12px 20px;
+    margin: 8px;
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    border: 4px solid #000;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 0 #000;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.terminal-link:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000;
+    background: #f0f0f0;
+}
+
+.terminal-link:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0 #000;
+}
+
+/* Button with multiple shadows (like in the original) */
+.terminal-link.with-shadows {
+    position: relative;
+}
+
+.terminal-link.with-shadows::before,
+.terminal-link.with-shadows::after {
+    content: '';
+    position: absolute;
+    border: 4px solid #000;
+    background: #fff;
+    z-index: -1;
+}
+
+.terminal-link.with-shadows::before {
+    top: 4px;
+    left: 4px;
+    right: -4px;
+    bottom: -4px;
+    background: #ddd;
+}
+
+.terminal-link.with-shadows::after {
+    top: 8px;
+    left: 8px;
+    right: -8px;
+    bottom: -8px;
+    background: #bbb;
+}
+
+/* Container styling */
+.container {
+    background: #fff;
+    padding: 20px;
+    border: 8px solid #000;
+    position: relative;
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: -8px;
+    bottom: -8px;
+    border: 4px solid #000;
+    background: #f8f8f8;
+    z-index: -1;
+}
+
+/* Text styles */
+body {
+    font-family: 'Courier New', monospace;
+    background: #f0f0f0;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Link grid layout */
+.terminal-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+@media (min-width: 768px) {
+    .terminal-links {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

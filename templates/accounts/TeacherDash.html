@@ -1,51 +1,278 @@
+{% extends "base.html" %}
+{% load static %}
 
+{% block content %}
 <!DOCTYPE html>
 <html>
-{% extends "base.html" %}
-{% block content %}
 <head>
     <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .welcome-title {
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .section-box {
+            background: white;
+            border: 4px solid #000;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            box-shadow: 6px 6px 0 #000;
+        }
+
+        .section-box::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: -4px;
+            bottom: -4px;
+            border: 4px solid #000;
+            background: #f8f8f8;
+            z-index: -1;
+        }
+
+        .section-title {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .classroom-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .classroom-item {
+            background: white;
+            border: 3px solid #000;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .classroom-item::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: -3px;
+            bottom: -3px;
+            border: 3px solid #000;
+            background: #f0f0f0;
+            z-index: -1;
+        }
+
+        .classroom-name {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .classroom-code {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .students-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+        }
+
+        .student-item {
+            background: #FFF026;
+            border: 2px solid #000;
+            padding: 8px 12px;
+            margin: 5px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .no-students {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            font-style: italic;
+            padding: 10px;
+            background: #f0f0f0;
+            border: 2px solid #000;
+        }
+
+        .create-form {
+            background: white;
+            border: 4px solid #000;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            box-shadow: 6px 6px 0 #000;
+        }
+
+        .create-form::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: -4px;
+            bottom: -4px;
+            border: 4px solid #000;
+            background: #f8f8f8;
+            z-index: -1;
+        }
+
+        .form-input {
+            font-family: 'Courier New', monospace;
+            padding: 12px;
+            border: 3px solid #000;
+            font-size: 16px;
+            margin-right: 10px;
+            min-width: 250px;
+            background: white;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .form-input:focus {
+            outline: none;
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .pixel-button {
+            font-family: 'Courier New', monospace;
+            padding: 12px 24px;
+            background: #FD91C6;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border: 4px solid #000;
+            position: relative;
+            transition: all 0.1s ease;
+            box-shadow: 4px 4px 0 #000;
+            text-transform: uppercase;
+            font-size: 16px;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .pixel-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+            background: #ff7eb9;
+        }
+
+        .pixel-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0 #000;
+        }
+
+        .logout-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #cccccc;
+            color: #000;
+            text-decoration: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #000;
+            text-transform: uppercase;
+            transition: all 0.1s ease;
+        }
+
+        .logout-link:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .empty-message {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            background: #f0f0f0;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #000;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</h1>
+    <div class="dashboard-container">
+        <h1 class="welcome-title">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</h1>
 
-    <h2>Your classrooms</h2>
+        <div class="section-box">
+            <h2 class="section-title">Your Classrooms</h2>
 
-    {% if classrooms %}
-        <ul>
-        {% for c in classrooms %}
-            <li>
-                <strong>{{ c.name }}</strong> – Code: {{ c.code }}
+            {% if classrooms %}
+                <ul class="classroom-list">
+                {% for c in classrooms %}
+                    <li class="classroom-item">
+                        <div class="classroom-name">{{ c.name }}</div>
+                        <div class="classroom-code">Code: {{ c.code }}</div>
 
-                {% if c.students.all %}
-                    <div>
-                        <em>Students:</em>
-                        {% if c.students.count %}
-                            <ul>
-                                {% for s in c.students.all %}
-                                    <li>{{ s.user.first_name }} {{ s.user.last_name }} ({{ s.user.username }})</li>
-                                {% endfor %}
-                            </ul>
+                        {% if c.students.all %}
+                            <div>
+                                <strong>Students:</strong>
+                                {% if c.students.count %}
+                                    <ul class="students-list">
+                                        {% for s in c.students.all %}
+                                            <li class="student-item">
+                                                {{ s.user.first_name }} {{ s.user.last_name }} ({{ s.user.username }})
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <div class="no-students">No students have joined this class yet.</div>
+                                {% endif %}
+                            </div>
                         {% else %}
-                            <p>No students have joined this class yet.</p>
+                            <div class="no-students">No students in this classroom yet.</div>
                         {% endif %}
-                    </div>
-                {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>You have no classrooms yet.</p>
-    {% endif %}
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-message">
+                    You have no classrooms yet. Create your first one below!
+                </div>
+            {% endif %}
+        </div>
 
-    <h3>Create a new classroom</h3>
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="classroom_name" placeholder="Classroom name" required>
-        <button type="submit">Create</button>
-    </form>
+        <div class="create-form">
+            <h3 class="section-title">➕ Create New Classroom</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="text" name="classroom_name" placeholder="Enter classroom name" class="form-input" required>
+                <button type="submit" class="pixel-button">Create Classroom</button>
+            </form>
+        </div>
 
-    <p><a href="{% url 'logout' %}">Log out</a></p>
+        <a href="{% url 'logout' %}" class="logout-link">Log Out</a>
+    </div>
 </body>
 </html>
 {% endblock %}

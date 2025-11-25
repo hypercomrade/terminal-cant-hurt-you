@@ -1,45 +1,452 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Sign Up</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .auth-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .auth-box {
+            background: white;
+            border: 6px solid #000;
+            padding: 30px;
+            position: relative;
+            box-shadow: 8px 8px 0 #000;
+        }
+
+        .auth-box::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            right: -6px;
+            bottom: -6px;
+            border: 4px solid #000;
+            background: #f8f8f8;
+            z-index: -1;
+        }
+
+        .auth-title {
+            font-family: 'Courier New', monospace;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 4px 4px 0 #000;
+        }
+
+        .auth-form {
+            font-family: 'Courier New', monospace;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            padding: 15px;
+            border: 4px solid #000;
+            font-size: 16px;
+            background: white;
+            box-shadow: 4px 4px 0 #000;
+            transition: all 0.1s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+            background: #ffffcc;
+        }
+
+        .form-select {
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            padding: 15px;
+            border: 4px solid #000;
+            font-size: 16px;
+            background: white;
+            box-shadow: 4px 4px 0 #000;
+            transition: all 0.1s ease;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+            background: #ffffcc;
+        }
+
+        .error-messages {
+            background: #ffcccc;
+            border: 3px solid #000;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        .error-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .error-item {
+            color: #ff0000;
+            margin: 5px 0;
+        }
+
+        .section-title {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #000;
+            margin: 30px 0 15px 0;
+            text-transform: uppercase;
+            border-bottom: 3px solid #000;
+            padding-bottom: 5px;
+        }
+
+        .role-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: white;
+            border: 3px solid #000;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .role-option:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+            background: #f0f0f0;
+        }
+
+        .role-option input[type="radio"] {
+            transform: scale(1.3);
+            accent-color: #000;
+        }
+
+        .role-label {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .help-text {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            padding: 8px;
+            background: #f0f0f0;
+            border: 2px solid #000;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .pixel-button {
+            font-family: 'Courier New', monospace;
+            padding: 15px 30px;
+            background: #91FD91;
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            border: 4px solid #000;
+            position: relative;
+            transition: all 0.1s ease;
+            box-shadow: 6px 6px 0 #000;
+            text-transform: uppercase;
+            font-size: 18px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .pixel-button:hover {
+            transform: translate(3px, 3px);
+            box-shadow: 3px 3px 0 #000;
+            background: #7aff7a;
+        }
+
+        .pixel-button:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0 #000;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 25px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .auth-link-text {
+            color: #000;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .link-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #FD9191;
+            color: #000;
+            text-decoration: none;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            border: 4px solid #000;
+            box-shadow: 5px 5px 0 #000;
+            text-transform: uppercase;
+            transition: all 0.1s ease;
+            letter-spacing: 1px;
+        }
+
+        .link-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 3px 3px 0 #000;
+            text-decoration: none;
+            color: #000;
+            background: #ff7a7a;
+        }
+
+        .field-errors {
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
+        }
+
+        .input-with-icon .form-input {
+            padding-left: 50px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .role-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Sign Up</h1>
+    <div class="auth-container">
+        <div class="auth-box">
+            <h1 class="auth-title"> Create Account</h1>
 
-  {% if form.errors %}
-      <ul style="color:red;">
-          {% for field in form %}
-              {% for error in field.errors %}
-                  <li>{{ field.label }}: {{ error }}</li>
-              {% endfor %}
-          {% endfor %}
-          {% for error in form.non_field_errors %}
-              <li>{{ error }}</li>
-          {% endfor %}
-      </ul>
-  {% endif %}
+            {% if form.errors %}
+                <div class="error-messages">
+                    <ul class="error-list">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li class="error-item">{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li class="error-item">{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
 
-  <form method="post">
-      {% csrf_token %}
+            <form method="post" class="auth-form">
+                {% csrf_token %}
 
-      <p>{{ form.username.label_tag }} {{ form.username }}</p>
-      <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
-      <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
-      <p>{{ form.email.label_tag }} {{ form.email }}</p>
-      <p>{{ form.password1.label_tag }} {{ form.password1 }}</p>
-      <p>{{ form.password2.label_tag }} {{ form.password2 }}</p>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon"></span>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}
+                        <div class="field-errors">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
 
-      <h3>Account Type</h3>
-      {{ form.role }}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon"></span>
+                            {{ form.first_name }}
+                        </div>
+                        {% if form.first_name.errors %}
+                            <div class="field-errors">
+                                {% for error in form.first_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
 
-      <p>
-          {{ form.classroom_code.label_tag }} {{ form.classroom_code }}
-          {% if form.classroom_code.help_text %}<small>{{ form.classroom_code.help_text }}</small>{% endif %}
-      </p>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon"></span>
+                            {{ form.last_name }}
+                        </div>
+                        {% if form.last_name.errors %}
+                            <div class="field-errors">
+                                {% for error in form.last_name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
 
-      <button type="submit">Create Account</button>
-  </form>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon"></span>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                        <div class="field-errors">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
 
-  <p>Already have an account? <a href="{% url 'signin' %}">Sign in</a></p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label"> Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon"></span>
+                            {{ form.password1 }}
+                        </div>
+                        {% if form.password1.errors %}
+                            <div class="field-errors">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <span class="input-icon"></span>
+                            {{ form.password2 }}
+                        </div>
+                        {% if form.password2.errors %}
+                            <div class="field-errors">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h3 class="section-title">Account Type</h3>
+                <div class="role-options">
+                    {% for choice in form.role %}
+                        <label class="role-option">
+                            {{ choice.tag }}
+                            <span class="role-label">
+                                {% if choice.choice_label == "teacher" %}Teacher
+                                {% elif choice.choice_label == "student" %}Student
+                                {% elif choice.choice_label == "personal" %}Personal
+                                {% else %}{{ choice.choice_label }}{% endif %}
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Classroom Code (Students Only)</label>
+                    <div class="input-with-icon">
+                        <span class="input-icon"></span>
+                        {{ form.classroom_code }}
+                    </div>
+                    {% if form.classroom_code.help_text %}
+                        <div class="help-text">{{ form.classroom_code.help_text }}</div>
+                    {% endif %}
+                    {% if form.classroom_code.errors %}
+                        <div class="field-errors">
+                            {% for error in form.classroom_code.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="pixel-button">Create My Account</button>
+            </form>
+
+            <div class="auth-link">
+                <span class="auth-link-text">Already have an account?</span>
+                <a href="{% url 'signin' %}" class="link-button">Sign In Here</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+{% endblock %}
