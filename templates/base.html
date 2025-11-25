@@ -6,21 +6,28 @@
         body {
             margin: 0;
             font-family: 'Courier New', Courier, monospace;
+            background: #f8f8f8;
         }
 
         header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             padding: 15px 25px;
             background-color: #000000;
             border-bottom: 1px solid #000000;
+            position: relative;
         }
 
         .logo-container {
             display: flex;
             align-items: center;
             gap: 20px;
+        }
+
+        .nav-buttons {
+            position: absolute;
+            right: 25px;
         }
 
         .nav-buttons a {
@@ -37,34 +44,24 @@
             background: #005fcc;
         }
 
-        .logo-box {
-        width: 90px;      
-        height: 90px;     
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden; 
-    }
-
-    .logo-img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain; 
-    }
-
+        .page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
     </style>
 </head>
-<body>
 
+<body>
 <header>
     <div class="logo-container">
        <img src="{% static "images/tchu_logo.png" %}" alt="Hi!" />
     </div>
 
-
     <div class="nav-buttons">
         {% if user.is_authenticated %}
         <span style="color:white">Hi, {{ user.username }} </span>
+
             {% if user.role == "teacher" %}
                 <a href="{% url 'teacher_dashboard' %}">My Account</a>
             {% elif user.role == "student" %}
@@ -74,16 +71,15 @@
             {% endif %}
             
             <a href="{% url 'logout' %}">Logout</a>
-
-        {% else %}
-          <!--<a href="{% url 'signup' %}">Sign Up</a>-->  
-          <!--<a href="{% url 'signin' %}">Sign In</a>-->
         {% endif %}
     </div>
 </header>
 
-{% block content %}
-{% endblock %}
+<main class="page-container">
+    {% block content %}
+    {% endblock %}
+</main>
 
 </body>
 </html>
+
