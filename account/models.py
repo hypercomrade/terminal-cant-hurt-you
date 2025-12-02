@@ -65,3 +65,21 @@ class Personal(models.Model):
 
     def __str__(self):
         return f"Personal: {self.user.first_name} {self.user.last_name}"
+    
+
+
+class PowerShellChecklist(models.Model):
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="powershell_checklist",
+    )
+    list_files = models.BooleanField(default=False)
+    system_info = models.BooleanField(default=False)
+    move_location = models.BooleanField(default=False)
+    read_write = models.BooleanField(default=False)
+    manipulate_files = models.BooleanField(default=False)
+    navigate = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"PowerShell Checklist for {self.user.username}"

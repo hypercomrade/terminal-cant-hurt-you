@@ -1,7 +1,14 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Terminal Can't Hurt You{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# your global CSS, if any #}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
     <style>
         body {
             margin: 0;
@@ -9,75 +16,46 @@
             background: #f8f8f8;
         }
 
-        header {
+       
+        .site-header {
+            background-color: #000;
+            border-bottom: 1px solid #000;
+            padding: 16px 0;             
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px 25px;
-            background-color: #000000;
-            border-bottom: 1px solid #000000;
-            position: relative;
+            justify-content: center;      
+            align-items: center;          
         }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+        .logo-link {
+            display: inline-block;
         }
 
-        .nav-buttons {
-            position: absolute;
-            right: 25px;
-        }
-
-        .nav-buttons a {
-            margin-left: 12px;
-            padding: 10px 18px;
-            background: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .nav-buttons a:hover {
-            background: #005fcc;
+        .site-logo {
+            height: 130px;                 /* make the logo bigger */
+            max-width: 100%;
+            display: block;
         }
 
         .page-container {
-            max-width: 900px;
+            max-width: 1300px;
             margin: 0 auto;
             padding: 20px;
         }
     </style>
+
+    {# per-page extra head content #}
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
-<header>
-    <div class="logo-container">
-       <img src="{% static "images/tchu_logo.png" %}" alt="Hi!" />
-    </div>
-
-    <div class="nav-buttons">
-        {% if user.is_authenticated %}
-        <span style="color:white">Hi, {{ user.username }} </span>
-
-            {% if user.role == "teacher" %}
-                <a href="{% url 'teacher_dashboard' %}">My Account</a>
-            {% elif user.role == "student" %}
-                <a href="{% url 'student_dashboard' %}">My Account</a>
-            {% elif user.role == "personal" %}
-                <a href="{% url 'personal_dashboard' %}">My Account</a>
-            {% endif %}
-            
-            <a href="{% url 'logout' %}">Logout</a>
-        {% endif %}
-    </div>
+<header class="site-header">
+    <a href="{% url 'home' %}" class="logo-link">
+        <img src="{% static 'images/tchu_logo.png' %}" alt="Terminal Can't Hurt You" class="site-logo">
+    </a>
 </header>
 
 <main class="page-container">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
 </main>
 
 </body>

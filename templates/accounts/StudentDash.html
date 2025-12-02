@@ -25,6 +25,7 @@
             letter-spacing: 2px;
         }
 
+<<<<<<< HEAD
         .welcome-subtitle {
             font-family: 'Courier New', monospace;
             font-size: 1.5em;
@@ -36,6 +37,8 @@
             letter-spacing: 1px;
         }
 
+=======
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
         .section-box {
             background: white;
             border: 4px solid #000;
@@ -66,6 +69,7 @@
             text-transform: uppercase;
         }
 
+<<<<<<< HEAD
         .message-box {
             font-family: 'Courier New', monospace;
             padding: 15px;
@@ -86,12 +90,19 @@
         }
 
         .class-list {
+=======
+        .classroom-list {
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             list-style: none;
             padding: 0;
             margin: 0;
         }
 
+<<<<<<< HEAD
         .class-item {
+=======
+        .classroom-item {
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             background: white;
             border: 3px solid #000;
             padding: 15px;
@@ -100,7 +111,11 @@
             box-shadow: 4px 4px 0 #000;
         }
 
+<<<<<<< HEAD
         .class-item::before {
+=======
+        .classroom-item::before {
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             content: '';
             position: absolute;
             top: 3px;
@@ -112,11 +127,16 @@
             z-index: -1;
         }
 
+<<<<<<< HEAD
         .class-name {
+=======
+        .classroom-name {
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             font-family: 'Courier New', monospace;
             font-weight: bold;
             font-size: 1.2em;
             color: #000;
+<<<<<<< HEAD
             margin-bottom: 10px;
         }
 
@@ -147,6 +167,34 @@
         }
 
         .join-form {
+=======
+            margin-bottom: 5px;
+        }
+
+        .classroom-teacher {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .classroom-code {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .empty-message {
+            font-family: 'Courier New', monospace;
+            color: #666;
+            text-align: center;
+            padding: 20px;
+            background: #f0f0f0;
+            border: 3px solid #000;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .create-form {
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             background: white;
             border: 4px solid #000;
             padding: 20px;
@@ -155,7 +203,11 @@
             box-shadow: 6px 6px 0 #000;
         }
 
+<<<<<<< HEAD
         .join-form::before {
+=======
+        .create-form::before {
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             content: '';
             position: absolute;
             top: 4px;
@@ -187,7 +239,11 @@
         .pixel-button {
             font-family: 'Courier New', monospace;
             padding: 12px 24px;
+<<<<<<< HEAD
             background: #91FD91;
+=======
+            background: #FD91C6;
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
             color: #000;
             text-decoration: none;
             font-weight: bold;
@@ -204,7 +260,11 @@
         .pixel-button:hover {
             transform: translate(2px, 2px);
             box-shadow: 2px 2px 0 #000;
+<<<<<<< HEAD
             background: #7aff7a;
+=======
+            background: #ff7eb9;
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
         }
 
         .pixel-button:active {
@@ -234,6 +294,7 @@
             color: #000;
         }
 
+<<<<<<< HEAD
         .empty-message {
             font-family: 'Courier New', monospace;
             color: #666;
@@ -246,10 +307,25 @@
 
         .icon {
             margin-right: 8px;
+=======
+        .message-error {
+            color: red;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .message-success {
+            color: green;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 10px;
+            text-align: center;
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1
         }
     </style>
 </head>
 <body>
+<<<<<<< HEAD
     <div class="dashboard-container">
         <h1 class="welcome-title">🎓 Student Dashboard</h1>
         <h2 class="welcome-subtitle">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</h2>
@@ -305,3 +381,67 @@
 </body>
 </html>
 {% endblock %}
+=======
+
+    <div class="dashboard-container">
+        <h1 class="welcome-title">
+            Welcome, {{ request.user.first_name }} {{ request.user.last_name }}
+        </h1>
+
+        {% if error %}
+            <p class="message-error">{{ error }}</p>
+        {% endif %}
+        {% if success %}
+            <p class="message-success">{{ success }}</p>
+        {% endif %}
+
+        <!-- Your Classes -->
+        <div class="section-box">
+            <h2 class="section-title">Your Classes</h2>
+
+            {% if classes %}
+                <ul class="classroom-list">
+                    {% for c in classes %}
+                        <li class="classroom-item">
+                            <div class="classroom-name">{{ c.name }}</div>
+                            <div class="classroom-teacher">
+                                Teacher: {{ c.teacher.user.first_name }} {{ c.teacher.user.last_name }}
+                            </div>
+                            <div class="classroom-code">Code: {{ c.code }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-message">
+                    You are not in any classes yet.
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Join a New Class -->
+        <div class="create-form">
+            <h3 class="section-title">➕ Join a New Class</h3>
+            <form method="post">
+                {% csrf_token %}
+                <input type="text"
+                       name="classroom_code"
+                       placeholder="Classroom code"
+                       class="form-input"
+                       required>
+                <button type="submit" class="pixel-button">Join</button>
+            </form>
+        </div>
+
+        <!-- Settings + Log Out links at bottom -->
+        <div style="margin-top: 10px;">
+            <a href="{% url 'settings' %}" class="logout-link" style="background:#FFF026; margin-right:10px;">
+                Settings
+            </a>
+            <a href="{% url 'logout' %}" class="logout-link">Log Out</a>
+        </div>
+    </div>
+
+</body>
+</html>
+{% endblock %}
+>>>>>>> c380a052e2634aae1fc03f22d48a6f816dd863f1

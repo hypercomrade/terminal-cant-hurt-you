@@ -3,55 +3,93 @@
 
 {% block content %}
 
-
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 
-<div class="hero-section pixel-border2">
-    <h1 class="hero-title">Welcome</h1>
-    <p class="hero-subtitle">Access multiple terminal environments in one place</p>
-    
-    <div class="action-buttons">
-        <a href="{% url 'zsh_terminal' %}" class="action-button primary">
-            🖥️ ZSH Terminal
-        </a>
-        <a href="{% url 'bash_terminal' %}" class="action-button secondary">
-            💻 Bash Terminal
-        </a>
-        <a href="{% url 'powershell_terminal' %}" class="action-button tertiary">
-            ⚡ PowerShell
-        </a>
+<div class="home-layout">
+
+    <!-- MAIN CENTER COLUMN -->
+    <div class="main-column">
+
+        <div class="hero-section pixel-border2">
+            <h1 class="hero-title">Welcome</h1>
+            <p class="hero-subtitle">Access multiple terminal environments in one place</p>
+            
+            <div class="action-buttons">
+                <a href="{% url 'zsh_terminal' %}" class="action-button primary">
+                    🖥️ ZSH TERMINAL
+                </a>
+                <a href="{% url 'bash_terminal' %}" class="action-button secondary">
+                    💻 BASH TERMINAL
+                </a>
+                <a href="{% url 'powershell_terminal' %}" class="action-button tertiary">
+                    ⚡ POWERSHELL
+                </a>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-box">
+                <div class="feature-icon">🔧</div>
+                <h3 class="feature-title">MULTIPLE ENVIRONMENTS</h3>
+                <p>ZSH, Bash, PowerShell - all in one platform</p>
+            </div>
+            
+            <div class="feature-box">
+                <div class="feature-icon">👥</div>
+                <h3 class="feature-title">ROLE-BASED ACCESS</h3>
+                <p>Different interfaces for students and teachers</p>
+            </div>
+        </div>
+
     </div>
+
+    <!-- AUTHENTICATION SIDEBAR -->
+    <aside class="auth-sidebar">
+        {% if not user.is_authenticated %}
+            <div class="hero-section auth-card">
+                <h2 style="font-family: 'Courier New', monospace; margin-top: 0;">
+                    Get Started Today
+                </h2>
+                <div class="action-buttons">
+                    <a href="{% url 'signup' %}" class="action-button" style="background: #91FD91;">
+                        Sign Up
+                    </a>
+                    <a href="{% url 'signin' %}" class="action-button" style="background: #FD9191;">
+                        Sign In
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <div class="hero-section auth-card">
+                <h2 style="font-family: 'Courier New', monospace; margin-top: 0;">
+                    Hi, {{ user.username }}
+                </h2>
+                <div class="action-buttons">
+                    {% if user.role == "teacher" %}
+                        <a href="{% url 'teacher_dashboard' %}" class="action-button" style="background: #91FD91;">
+                            My Account
+                        </a>
+                    {% elif user.role == "student" %}
+                        <a href="{% url 'student_dashboard' %}" class="action-button" style="background: #91FD91;">
+                            My Account
+                        </a>
+                    {% elif user.role == "personal" %}
+                        <a href="{% url 'personal_dashboard' %}" class="action-button" style="background: #91FD91;">
+                            My Account
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'settings' %}" class="action-button" style="background:#f5803d;">
+                        Settings
+                    </a>
+
+                    <a href="{% url 'logout' %}" class="action-button" style="background: #FD9191;">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </aside>
+
 </div>
-
-<div class="feature-grid">
-    
-    <div class="feature-box">
-        <div class="feature-icon">🔧</div>
-        <h3 class="feature-title">Multiple Environments</h3>
-        <p>ZSH, Bash, PowerShell - all in one platform</p>
-    </div>
-    
-    <div class="feature-box">
-        <div class="feature-icon">👥</div>
-        <h3 class="feature-title">Role-Based Access</h3>
-        <p>Different interfaces for students and teachers</p>
-    </div>
-</div>
-
-{% if not user.is_authenticated %}
-<div class="hero-section" style="text-align: center;">
-    <h2 style="font-family: 'Courier New', monospace;">Get Started Today</h2>
-    <div class="action-buttons">
-        <a href="{% url 'signup' %}" class="action-button" style="background: #91FD91;">
-            Sign Up
-        </a>
-        <a href="{% url 'signin' %}" class="action-button" style="background: #FD9191;">
-            Sign In
-        </a>
-    </div>
-</div>
-{% endif %}
-
-
 
 {% endblock %}
