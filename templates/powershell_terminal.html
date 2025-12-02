@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -87,32 +88,32 @@
     <h2>Task Checklist</h2>
 
     <div class="checklist-item">
-      <div id="check-list" class="checkmark" aria-hidden="true"></div>
+      <div id="check-list" class="checkmark {% if checklist.list_files %}checked{% endif %}" data-key="list_files" aria-hidden="true"></div>
       <div class="task-desc">List files (Get-ChildItem / ls)</div>
     </div>
 
     <div class="checklist-item">
-      <div id="check-info" class="checkmark" aria-hidden="true"></div>
+      <div id="check-info" class="checkmark {% if checklist.system_info %}checked{% endif %}" data-key="system_info" aria-hidden="true"></div>
       <div class="task-desc">System information (Get-Help, Get-Command, Get-Alias)</div>
     </div>
 
     <div class="checklist-item">
-      <div id="check-location" class="checkmark" aria-hidden="true"></div>
+      <div id="check-location" class="checkmark {% if checklist.move_location %}checked{% endif %}" data-key="move_location" aria-hidden="true"></div>
       <div class="task-desc">Move location (Set-Location / cd)</div>
     </div>
 
     <div class="checklist-item">
-      <div id="check-readwrite" class="checkmark" aria-hidden="true"></div>
+      <div id="check-readwrite" class="checkmark {% if checklist.read_write %}checked{% endif %}" data-key="read_write" aria-hidden="true"></div>
       <div class="task-desc">Read / Write files (Get-Content, Set-Content, Add-Content)</div>
     </div>
 
     <div class="checklist-item">
-      <div id="check-manipulate" class="checkmark" aria-hidden="true"></div>
+      <div id="check-manipulate" class="checkmark {% if checklist.manipulate_files %}checked{% endif %}" data-key="manipulate_files" aria-hidden="true"></div>
       <div class="task-desc">Manipulate files (New-Item, Remove-Item, Copy-Item, Move-Item)</div>
     </div>
 
     <div class="checklist-item">
-      <div id="check-navigation" class="checkmark" aria-hidden="true"></div>
+      <div id="check-navigation" class="checkmark {% if checklist.navigate %}checked{% endif %}" data-key="navigate" aria-hidden="true"></div>
       <div class="task-desc">Navigate back/forward (cd -)</div>
     </div>
   </div>
@@ -218,10 +219,45 @@
   // --------------------------
   // Checklist helpers
   // --------------------------
-  function markCheck(id) {
-    const el = document.getElementById(id);
-    if (el && !el.classList.contains('checked')) el.classList.add('checked');
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
   }
+
+  const CHECKLIST_UPDATE_URL = "{% url 'powershell_checklist_update' %}";
+
+  function updateChecklist(key) {
+    fetch(CHECKLIST_UPDATE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({ key: key, value: true }),
+    }).catch(() => {});
+  }
+
+  // id = element id; key = model field name
+  function markCheck(id, key) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!el.classList.contains("checked")) {
+      el.classList.add("checked");
+      if (key) updateChecklist(key);
+    }
+  }
+
+  
 
   // --------------------------
   // Command processing
@@ -491,31 +527,38 @@
     }
 
     // After command executed, mark checklist items only if success true:
+        // After command executed, mark checklist items only if success true:
     if (success) {
-      // list files
-      if (["ls","gci","get-childitem"].includes(cmd)) markCheck('check-list');
+  // list files
+  if (["ls","gci","get-childitem"].includes(cmd))
+    markCheck("check-list", "list_files");
 
-      // system info (help / get-command / get-alias)
-      if (["get-help","help","get-command","get-alias"].includes(cmd)) markCheck('check-info');
+  // system info (help / get-command / get-alias)
+  if (["get-help","help","get-command","get-alias"].includes(cmd))
+    markCheck("check-info", "system_info");
 
-      // set-location variants
-      if (["cd","sl","set-location"].includes(cmd)) {
-        markCheck('check-location');
-        // cd - specifically checks navigation
-        if (args[0] === "-" || (cmd === "cd" && args[0] === "-")) {
-          markCheck('check-navigation');
-        }
-      }
-
-      // read/write files
-      if (["gc","cat","get-content","set-content","add-content"].includes(cmd)) markCheck('check-readwrite');
-
-      // manipulate files (new, remove, copy, move)
-      if (["ni","new-item","rm","ri","remove-item","copy-item","cp","move-item","mv"].includes(cmd)) markCheck('check-manipulate');
-
-      // cd - might be entered as command only
-      if (cmd === "cd" && args[0] === "-") markCheck('check-navigation');
+  // set-location variants
+  if (["cd","sl","set-location"].includes(cmd)) {
+    markCheck("check-location", "move_location");
+    // cd - specifically checks navigation
+    if (args[0] === "-" || (cmd === "cd" && args[0] === "-")) {
+      markCheck("check-navigation", "navigate");
     }
+  }
+
+  // read/write files
+  if (["gc","cat","get-content","set-content","add-content"].includes(cmd))
+    markCheck("check-readwrite", "read_write");
+
+  // manipulate files (new, remove, copy, move)
+  if (["ni","new-item","rm","ri","remove-item","copy-item","cp","move-item","mv"].includes(cmd))
+    markCheck("check-manipulate", "manipulate_files");
+
+  // cd - might be entered as command only
+  if (cmd === "cd" && args[0] === "-")
+    markCheck("check-navigation", "navigate");
+}
+
 
     return success;
   }
