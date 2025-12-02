@@ -46,6 +46,8 @@ class Student(models.Model):
     user = models.OneToOneField(
         CustomUser, on_delete=models.CASCADE, related_name="student_profile"
     )
+
+    
     classroom = models.ManyToManyField(
         Classroom,
         related_name='students',

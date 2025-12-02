@@ -49,7 +49,7 @@ class SignInView(FormView):
         elif user.role == "student":
             return redirect("student_dashboard")
         elif user.role == "personal":
-            return redirect("personal_dahsboard")
+            return redirect("personal_dashboard")
         return redirect(self.get_success_url())
 
 def logout_view(request):
