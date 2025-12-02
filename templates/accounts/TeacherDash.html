@@ -4,6 +4,7 @@
 {% block content %}
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Teacher Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -110,6 +111,11 @@
             font-family: 'Courier New', monospace;
             font-weight: bold;
             box-shadow: 2px 2px 0 #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .no-students {
@@ -187,6 +193,11 @@
             box-shadow: 0px 0px 0 #000;
         }
 
+        .pixel-button-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
         .logout-link {
             display: inline-block;
             margin-top: 30px;
@@ -218,9 +229,42 @@
             border: 3px solid #000;
             box-shadow: 3px 3px 0 #000;
         }
+
+        /* Confirm popup */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .confirm-overlay.show {
+            display: flex;
+        }
+
+        .confirm-modal {
+            background: #fff;
+            border: 4px solid #000;
+            box-shadow: 6px 6px 0 #000;
+            padding: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
     </style>
 </head>
+
 <body>
+
     <div class="dashboard-container">
         <h1 class="welcome-title">Welcome, {{ request.user.first_name }} {{ request.user.last_name }}</h1>
 
@@ -228,37 +272,78 @@
             <h2 class="section-title">Your Classrooms</h2>
 
             {% if classrooms %}
-                <ul class="classroom-list">
+            <ul class="classroom-list">
                 {% for c in classrooms %}
-                    <li class="classroom-item">
-                        <div class="classroom-name">{{ c.name }}</div>
-                        <div class="classroom-code">Code: {{ c.code }}</div>
+                <li class="classroom-item">
+                    <div class="classroom-name">{{ c.name }}</div>
+                    <div class="classroom-code">Code: {{ c.code }}</div>
 
-                        {% if c.students.all %}
-                            <div>
-                                <strong>Students:</strong>
-                                {% if c.students.count %}
-                                    <ul class="students-list">
-                                        {% for s in c.students.all %}
-                                            <li class="student-item">
-                                                {{ s.user.first_name }} {{ s.user.last_name }} ({{ s.user.username }})
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
+                    {% if c.students.all %}
+                    <div>
+                        <strong>Students:</strong>
+                        {% if c.students.count %}
+                        <ul class="students-list">
+                            {% for s in c.students.all %}
+                            <li class="student-item">
+                                {{ s.user.first_name }} {{ s.user.last_name }} ({{ s.user.username }})
+
+                                {% with checklist=s.user.powershell_checklist %}
+                                {% if checklist %}
+                                <div style="margin-top:6px; font-size:0.9em;">
+                                    PS Checklist:
+                                    [ LF: {{ checklist.list_files|yesno:"✔,✘" }} ]
+                                    [ SI: {{ checklist.system_info|yesno:"✔,✘" }} ]
+                                    [ ML: {{ checklist.move_location|yesno:"✔,✘" }} ]
+                                    [ RW: {{ checklist.read_write|yesno:"✔,✘" }} ]
+                                    [ MF: {{ checklist.manipulate_files|yesno:"✔,✘" }} ]
+                                    [ NAV: {{ checklist.navigate|yesno:"✔,✘" }} ]
+                                </div>
                                 {% else %}
-                                    <div class="no-students">No students have joined this class yet.</div>
+                                <div style="margin-top:6px; font-size:0.9em; font-style:italic;">
+                                    PS Checklist: no progress yet
+                                </div>
                                 {% endif %}
-                            </div>
-                        {% else %}
-                            <div class="no-students">No students in this classroom yet.</div>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-                </ul>
+                                {% endwith %}
+
+                                <!-- Kick student from THIS class -->
+                                <form method="post" class="inline-form remove-student-form"
+                                    style="display:inline-block; margin-left:10px;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="remove_student">
+                                    <input type="hidden" name="classroom_id" value="{{ c.id }}">
+                                    <input type="hidden" name="student_id" value="{{ s.id }}">
+                                    <button type="submit" class="pixel-button"
+                                        style="padding:6px 12px; font-size:12px; background:#FFF026;">
+                                        Remove from Class
+                                    </button>
+                                </form>
+                            </li>
+                            {% endfor %}
+
+                            {% else %}
+                            <div class="no-students">No students have joined this class yet.</div>
+                            {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="no-students">No students in this classroom yet.</div>
+                    {% endif %}
+
+                    <!-- Delete this whole classroom -->
+                    <form method="post" class="inline-form delete-class-form" style="margin-top:10px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete_classroom">
+                        <input type="hidden" name="classroom_id" value="{{ c.id }}">
+                        <button type="submit" class="pixel-button" style="background:#FD9191;">
+                            Delete Classroom
+                        </button>
+                    </form>
+
+                    {% endfor %}
+            </ul>
             {% else %}
-                <div class="empty-message">
-                    You have no classrooms yet. Create your first one below!
-                </div>
+            <div class="empty-message">
+                You have no classrooms yet. Create your first one below!
+            </div>
             {% endif %}
         </div>
 
@@ -266,13 +351,78 @@
             <h3 class="section-title">➕ Create New Classroom</h3>
             <form method="post">
                 {% csrf_token %}
+                <input type="hidden" name="action" value="create_classroom">
                 <input type="text" name="classroom_name" placeholder="Enter classroom name" class="form-input" required>
                 <button type="submit" class="pixel-button">Create Classroom</button>
             </form>
         </div>
 
+
+        <!-- Settings link at bottom of teacher account page -->
+        <div style="margin-top: 10px;">
+            <a href="{% url 'settings' %}" class="logout-link" style="background:#FFF026;">Settings</a>
+        </div>
+
         <a href="{% url 'logout' %}" class="logout-link">Log Out</a>
     </div>
+
+    <!-- Confirm popup (same page) -->
+    <div id="confirm-overlay" class="confirm-overlay">
+        <div class="confirm-modal">
+            <div class="section-title" style="margin-bottom:10px;">Confirm Action</div>
+            <p id="confirm-message" style="font-family:'Courier New', monospace; color:#000;"></p>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" id="confirm-action">
+                <input type="hidden" name="classroom_id" id="confirm-classroom-id">
+                <input type="hidden" name="student_id" id="confirm-student-id">
+                <div class="confirm-buttons">
+                    <button type="button" class="pixel-button pixel-button-small"
+                        onclick="closeConfirm()">Cancel</button>
+                    <button type="submit" class="pixel-button pixel-button-small" style="background:#FD9191;">
+                        Yes, do it
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openConfirm(action, classroomId, studentId, message) {
+            document.getElementById("confirm-action").value = action;
+            document.getElementById("confirm-classroom-id").value = classroomId || "";
+            document.getElementById("confirm-student-id").value = studentId || "";
+            document.getElementById("confirm-message").textContent = message;
+            document.getElementById("confirm-overlay").classList.add("show");
+        }
+        function closeConfirm() {
+            document.getElementById("confirm-overlay").classList.remove("show");
+        }
+    </script>
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    // confirm before deleting classroom
+    document.querySelectorAll(".delete-class-form").forEach(function (form) {
+        form.addEventListener("submit", function (e) {
+            if (!confirm("Are you sure you want to delete this classroom? This cannot be undone.")) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // confirm before removing a student
+    document.querySelectorAll(".remove-student-form").forEach(function (form) {
+        form.addEventListener("submit", function (e) {
+            if (!confirm("Remove this student from this classroom?")) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+
 </body>
+
+
 </html>
 {% endblock %}

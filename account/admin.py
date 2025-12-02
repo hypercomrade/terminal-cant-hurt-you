@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Teacher, Student, Personal, Classroom
+from .models import CustomUser, Teacher, Student, Personal, Classroom, PowerShellChecklist
 
 
 @admin.register(CustomUser)
@@ -33,8 +33,7 @@ class PersonalAdmin(admin.ModelAdmin):
     list_display = ("user",)
 
 
-class StudentInline(admin.TabularInline):  # <-- better name
-    # ManyToManyField -> use the "through" model
+class StudentInline(admin.TabularInline): 
     model = Student.classroom.through
     extra = 0
 
@@ -44,3 +43,21 @@ class ClassroomAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "teacher")
     readonly_fields = ("code",)
     inlines = [StudentInline]
+
+@admin.register(PowerShellChecklist)
+class PowerShellChecklistAdmin(admin.ModelAdmin):
+    list_display = ("user",
+                    "list_files",
+                    "system_info",
+                    "move_location",
+                    "read_write",
+                    "manipulate_files",
+                    "navigate",
+                    )
+    list_filter = ("list_files",
+                    "system_info",
+                    "move_location",
+                    "read_write",
+                    "manipulate_files",
+                    "navigate",
+                    )
