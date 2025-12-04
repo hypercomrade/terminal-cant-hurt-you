@@ -23,7 +23,7 @@ class StudentAdmin(admin.ModelAdmin):
 
     def get_classrooms(self, obj):
         # Student has a ManyToManyField named "classrooms"
-        return ", ".join(c.name for c in obj.classrooms.all())
+        return ", ".join(c.name for c in obj.classroom.all())
 
     get_classrooms.short_description = "Classes"
 

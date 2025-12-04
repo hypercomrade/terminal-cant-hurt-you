@@ -21,7 +21,7 @@
                 <a href="{% url 'bash_sandbox' %}" class="action-button secondary">
                     💻 BASH TERMINAL
                 </a>
-                <a href="{% url 'powershell_sandbox' %}" class="action-button tertiary">
+                <a href="{% if user.role == 'student' %}{% url 'powershell_terminal' %}{% else %}{% url 'powershell_sandbox' %}{% endif %}" class="action-button tertiary">
                     ⚡ POWERSHELL
                 </a>
             </div>
