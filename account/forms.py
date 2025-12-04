@@ -58,7 +58,8 @@ class SignUpForm(UserCreationForm):
                 Teacher.objects.create(user=user)
             elif role ==  'student':
                 classroom = Classroom.objects.get(code=self.cleaned_data['classroom_code'])
-                Student.objects.create(user=user, classroom=classroom)
+                student = Student.objects.create(user=user)
+                student.classroom.add(classroom)
             elif role == 'personal':
                 Personal.objects.create(user=user)
         return user

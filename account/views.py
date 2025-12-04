@@ -27,7 +27,7 @@ class SignUpView(FormView):
         elif user.role == "student":
             return redirect("student_dashboard")
         elif user.role == "personal":
-            return redirect("personal_dahsboard")
+            return redirect("personal_dashboard")
         return redirect(self.get_success_url())
 
 
@@ -53,12 +53,14 @@ class SignInView(FormView):
         elif user.role == "student":
             return redirect("student_dashboard")
         elif user.role == "personal":
-            return redirect("personal_dahsboard")
+            return redirect("personal_dashboard")
         return redirect(self.get_success_url())
+
 
 def logout_view(request):
     logout(request)
-    return redirect('signin')
+    return redirect("signin")
+
 
 @method_decorator(login_required, name="dispatch")
 class TeacherDashBoardView(TemplateView):
@@ -119,7 +121,11 @@ class StudenDashBoardView(TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
         student = getattr(user, "student_profile", None)
-        classes = student.classroom.select_related("teacher__user")
+        classes = (
+            student.classroom.select_related("teacher__user")
+            if student
+            else Classroom.objects.none()
+        )
         ctx["student"] = student
         ctx["classes"] = classes
         ctx.setdefault("error", None)
@@ -160,21 +166,22 @@ class PersonalDashBoardView(TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx["user"] = self.request.user
         return ctx
-    
+
+
 @login_required
 @require_POST
-
 def delete_classroom(request, classroom_id):
     user = request.user
     teacher = getattr(user, "teacher_profile", None)
     if not teacher:
         return redirect("home")
-    
+
     classroom = Classroom.objects.filter(id=classroom_id, teacher=teacher).first()
     if classroom:
         classroom.delete()
 
     return redirect("teacher_dashboard")
+
 
 @login_required
 @require_POST
@@ -183,16 +190,17 @@ def remove_student(request, classroom_id, student_id):
     teacher = getattr(user, "teacher_profile", None)
     if not teacher:
         return redirect("home")
-    
+
     classroom = Classroom.objects.filter(id=classroom_id, teacher=teacher).first()
     if not classroom:
         return redirect("teacher_dashboard")
-    
+
     student = Student.objects.filter(id=student_id).first()
     if student:
-        classroom.students.remove(classroom)
+        classroom.students.remove(student)
 
     return redirect("teacher_dashboard")
+
 
 @method_decorator(login_required, name="dispatch")
 class SettingsView(LoginRequiredMixin, View):
