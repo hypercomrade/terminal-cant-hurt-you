@@ -2,12 +2,81 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<style>
+  .action-button {
+    display: inline-block;
+    padding: 15px 30px;
+    color: #000;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 16px;
+    border: 4px solid #000;
+    position: relative;
+    transition: all 0.1s ease;
+    box-shadow: 6px 6px 0 #000;
+    text-transform: uppercase;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  .setting-action-button {
+    display: inline-block;
+    padding: 15px 30px;
+    color: #000;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 16px;
+    border: 4px solid #000;
+    position: relative;
+    transition: all 0.1s ease;
+    box-shadow: 6px 6px 0 #000;
+    text-transform: uppercase;
+    min-width: 200px;
+    text-align: center;
+  }
+
+  .settings-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .settings-modal {
+    background: #ffffff;
+    border: 4px solid #000;
+    box-shadow: 6px 6px 0 #000;
+    padding: 20px;
+    max-width: 400px;
+    width: 90%;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+  }
+
+  .settings-modal-title {
+    font-weight: bold;
+    font-size: 1.4em;
+    margin-bottom: 10px;
+  }
+
+  .settings-modal-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+</style>
 
 <div class="dashboard-container">
   <h1 class="welcome-title">Account Settings</h1>
 
-  <!-- Update name + email -->
+  <!-- Profile -->
   <div class="section-box">
     <h2 class="section-title">Profile</h2>
     <form method="post">
@@ -27,7 +96,9 @@
         {{ profile_form.email }}
       </div>
 
-      <button type="submit" class="pixel-button">Save Profile</button>
+      <button type="submit" class="action-button" style="background: #6fffabff;">
+        Save Profile
+      </button>
     </form>
   </div>
 
@@ -51,21 +122,48 @@
         {{ password_form.new_password2 }}
       </div>
 
-      <button type="submit" class="pixel-button">Update Password</button>
+      <button type="submit" class="action-button" style="background: #dbf068ff;">
+        Update Password
+      </button>
     </form>
   </div>
 
-  <!-- Delete account -->
+  <!-- Theme settings -->
+  <div class="section-box">
+    <h2 class="section-title">Theme</h2>
+    <p>Choose how the site looks. This does not affect the terminals.</p>
+
+    <div class="theme-options">
+      <button type="button" id="theme-light" class="theme-option-button">
+        Light
+      </button>
+
+      <button type="button" id="theme-dark" class="theme-option-button">
+        Dark
+      </button>
+
+      <button type="button" id="theme-minecraft" class="theme-option-button" style="display:none;">
+        Minecraft
+      </button>
+
+      <button type="button" id="apply-theme" class="setting-action-button" style="background:rgb(71, 162, 247);">
+        Apply
+      </button>
+
+      <span id="theme-status" class="theme-status"></span>
+    </div>
+
+  </div>
+
+  <!-- Danger zone -->
   <div class="section-box" style="border-color:#ff0000; box-shadow:6px 6px 0 #000;">
     <h2 class="section-title">Danger Zone</h2>
-    <p style="font-family:'Courier New', monospace; color:#333;">
+    <p class="danger-text">
       Deleting your account will remove your user and all related data.
       This cannot be undone.
     </p>
 
-    <button id="delete-account-btn"
-            class="pixel-button"
-            style="background:#ff4d4d; margin-top:15px;">
+    <button id="delete-account-btn" class="action-button" style="background:#ff4d4d; margin-top:15px;">
       Delete Account
     </button>
 
@@ -77,59 +175,39 @@
   </div>
 </div>
 
-<!-- Simple popup modal -->
-<style>
-.settings-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-.settings-modal {
-  background: #ffffff;
-  border: 4px solid #000;
-  box-shadow: 6px 6px 0 #000;
-  padding: 20px;
-  max-width: 400px;
-  width: 90%;
-  font-family: 'Courier New', monospace;
-  text-align: center;
-}
-.settings-modal-title {
-  font-weight: bold;
-  font-size: 1.4em;
-  margin-bottom: 10px;
-}
-.settings-modal-buttons {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-</style>
-
+<!-- Delete popup -->
 <div id="delete-modal" class="settings-modal-overlay">
   <div class="settings-modal">
     <div class="settings-modal-title">Delete Account?</div>
     <p>Are you sure you want to delete your account? This action cannot be undone.</p>
     <div class="settings-modal-buttons">
-      <button id="cancel-delete" class="pixel-button" type="button"
-              style="background:#cccccc;">Cancel</button>
-      <button id="confirm-delete" class="pixel-button" type="button"
-              style="background:#ff4d4d;">Yes, Delete</button>
+      <button id="cancel-delete" class="setting-action-button" type="button" style="background:#cccccc;">Cancel</button>
+      <button id="confirm-delete" class="setting-action-button" type="button" style="background:#ff4d4d;">Yes,
+        Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Minecraft unlocked popup -->
+<div id="minecraft-modal" class="settings-modal-overlay">
+  <div class="settings-modal">
+    <div class="settings-modal-title">Minecraft Mode Unlocked!</div>
+    <p>The site has been re-themed with a Minecraft-inspired look.</p>
+    <div class="settings-modal-buttons">
+      <button id="minecraft-close" class="setting-action-button" type="button" style="background:#4caf50;">
+        Awesome!
+      </button>
     </div>
   </div>
 </div>
 
 <script>
-  const deleteBtn   = document.getElementById("delete-account-btn");
-  const deleteForm  = document.getElementById("delete-account-form");
+  // Delete account modal
+  const deleteBtn = document.getElementById("delete-account-btn");
+  const deleteForm = document.getElementById("delete-account-form");
   const deleteModal = document.getElementById("delete-modal");
-  const cancelBtn   = document.getElementById("cancel-delete");
-  const confirmBtn  = document.getElementById("confirm-delete");
+  const cancelBtn = document.getElementById("cancel-delete");
+  const confirmBtn = document.getElementById("confirm-delete");
 
   if (deleteBtn) {
     deleteBtn.addEventListener("click", function (e) {
@@ -149,6 +227,170 @@
       deleteForm.submit();
     });
   }
+</script>
+
+<script>
+  // Theme + Minecraft unlock logic
+  (function () {
+    const btnLight = document.getElementById("theme-light");
+    const btnDark = document.getElementById("theme-dark");
+    const btnMinecraft = document.getElementById("theme-minecraft");
+    const applyBtn = document.getElementById("apply-theme");
+    const statusSpan = document.getElementById("theme-status");
+    const minecraftModal = document.getElementById("minecraft-modal");
+    const minecraftClose = document.getElementById("minecraft-close");
+
+    if (!btnLight || !btnDark || !applyBtn) return;
+
+    let selectedTheme = "light";
+
+    function setStatus(msg) {
+      if (!statusSpan) return;
+      statusSpan.textContent = msg || "";
+      if (msg) {
+        setTimeout(function () {
+          if (statusSpan.textContent === msg) {
+            statusSpan.textContent = "";
+          }
+        }, 2000);
+      }
+    }
+
+    function isMinecraftUnlocked() {
+      try {
+        return localStorage.getItem("minecraftUnlocked") === "yes";
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function showMinecraftButton() {
+      if (btnMinecraft && isMinecraftUnlocked()) {
+        btnMinecraft.style.display = "inline-flex";
+      }
+    }
+
+    function applyThemeClass(theme) {
+      const root = document.documentElement;
+      const mcLink = document.getElementById("minecraft-css");
+
+      root.classList.remove("theme-dark", "theme-minecraft");
+
+      if (theme === "dark") {
+        root.classList.add("theme-dark");
+      } else if (theme === "minecraft") {
+        root.classList.add("theme-minecraft");
+      }
+
+      if (mcLink) {
+        mcLink.disabled = (theme !== "minecraft");
+      }
+
+      if (typeof window.updateThemeLogo === "function") {
+        window.updateThemeLogo();
+      }
+    }
+
+    function saveTheme(theme) {
+      try {
+        localStorage.setItem("siteTheme", theme);
+      } catch (e) { }
+    }
+
+    function selectButton(theme) {
+      selectedTheme = theme;
+      [btnLight, btnDark, btnMinecraft].forEach(function (btn) {
+        if (!btn) return;
+        btn.classList.remove("theme-option-selected");
+      });
+      if (theme === "light") {
+        btnLight.classList.add("theme-option-selected");
+      } else if (theme === "dark") {
+        btnDark.classList.add("theme-option-selected");
+      } else if (theme === "minecraft" && btnMinecraft && isMinecraftUnlocked()) {
+        btnMinecraft.classList.add("theme-option-selected");
+      }
+    }
+
+    // Load saved theme
+    let savedTheme = "light";
+    try {
+      savedTheme = localStorage.getItem("siteTheme") || "light";
+    } catch (e) { }
+
+    showMinecraftButton();
+
+    if (savedTheme === "minecraft" && !isMinecraftUnlocked()) {
+      savedTheme = "light";
+    }
+    selectButton(savedTheme);
+    applyThemeClass(savedTheme);
+
+    // Button clicks change selection
+    btnLight.addEventListener("click", function () {
+      selectButton("light");
+    });
+    btnDark.addEventListener("click", function () {
+      selectButton("dark");
+    });
+    if (btnMinecraft) {
+      btnMinecraft.addEventListener("click", function () {
+        if (!isMinecraftUnlocked()) return;
+        selectButton("minecraft");
+      });
+    }
+
+    // Apply button actually applies + saves
+    applyBtn.addEventListener("click", function () {
+      if (selectedTheme === "minecraft" && !isMinecraftUnlocked()) {
+        setStatus("Minecraft mode is still locked.");
+        selectButton("light");
+        return;
+      }
+      applyThemeClass(selectedTheme);
+      saveTheme(selectedTheme);
+      setStatus("Theme applied.");
+    });
+
+    // Konami code: ↑ ↑ ↓ ↓ ← → ← → unlocks Minecraft mode
+    const konami = [
+      "ArrowUp", "ArrowUp",
+      "ArrowDown", "ArrowDown",
+      "ArrowLeft", "ArrowRight",
+      "ArrowLeft", "ArrowRight"
+    ];
+    let pos = 0;
+
+    window.addEventListener("keydown", function (e) {
+      if (e.key === konami[pos]) {
+        pos++;
+        if (pos === konami.length) {
+          pos = 0;
+          try {
+            localStorage.setItem("minecraftUnlocked", "yes");
+          } catch (err) { }
+
+          showMinecraftButton();
+          selectButton("minecraft");
+          applyThemeClass("minecraft");
+          saveTheme("minecraft");
+          setStatus("Minecraft mode unlocked!");
+
+          if (minecraftModal) {
+            minecraftModal.style.display = "flex";
+          }
+        }
+      } else {
+        pos = 0;
+      }
+    });
+
+    if (minecraftClose && minecraftModal) {
+      minecraftClose.addEventListener("click", function () {
+        minecraftModal.style.display = "none";
+      });
+    }
+  })();
 </script>
 
 {% endblock %}

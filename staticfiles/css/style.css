@@ -8,14 +8,16 @@
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    pointer-events: none; /* Allows clicks to pass through to nav buttons */
+    pointer-events: none;
+    /* Allows clicks to pass through to nav buttons */
 }
 
 .logo-container-center * {
-    pointer-events: auto; /* Re-enable clicks on logo elements */
+    pointer-events: auto;
+    /* Re-enable clicks on logo elements */
 }
 
-/* Updated header for centered logo */
+/* Updated header for centered logo (legacy – works with <header class="site-header">) */
 header {
     display: flex;
     align-items: center;
@@ -26,7 +28,8 @@ header {
     border-left: 4px solid #000000;
     border-right: 4px solid #000000;
     position: relative;
-    min-height: 120px; /* Give enough space for centered logo */
+    min-height: 120px;
+    /* Give enough space for centered logo */
 }
 
 header::before {
@@ -80,7 +83,7 @@ header::before {
     display: flex;
     align-items: center;
     gap: 12px;
-    z-index: 10; /* Ensure buttons stay above centered logo */
+    z-index: 10;
     position: relative;
 }
 
@@ -115,7 +118,7 @@ header::before {
     letter-spacing: 1px;
 }
 
-/* Different colors for different user roles */
+/* Different colors for different user roles (LIGHT THEME ONLY) */
 .nav-buttons a[href*="teacher"] {
     background: #FD91C6;
 }
@@ -130,4 +133,436 @@ header::before {
 
 .nav-buttons a[href*="logout"] {
     background: #cccccc;
+}
+
+/* =======================================================
+   THEME SYSTEM
+   ======================================================= */
+
+/* Default light background when no theme is selected */
+html:not(.theme-dark):not(.theme-minecraft) body {
+    background: #f8f8f8;
+}
+
+/* Light theme content areas */
+html:not(.theme-dark):not(.theme-minecraft) main,
+html:not(.theme-dark):not(.theme-minecraft) .page-container,
+html:not(.theme-dark):not(.theme-minecraft) section {
+    background: #f8f8f8;
+    color: #000000;
+}
+
+/* Theme option buttons – styled like signup "account type" boxes */
+.theme-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.theme-option-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px 24px;
+    color: #000;
+    text-decoration: none;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 14px;
+    border: 4px solid #000;
+    position: relative;
+    transition: all 0.1s ease;
+    box-shadow: 4px 4px 0 #000;
+    text-transform: uppercase;
+    min-width: 160px;
+    text-align: left;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+/* Little circle on the left like the signup radio buttons */
+.theme-option-button::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #000;
+    background: #e0e0e0;
+    margin-right: 10px;
+}
+
+/* Hover & selected states */
+.theme-option-button:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000;
+    background: #f0f0f0;
+}
+
+.theme-option-button.theme-option-selected {
+    background: #dbf068;
+}
+
+.theme-status {
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-left: 8px;
+}
+
+.theme-hint {
+    font-size: 0.8rem;
+    margin-top: 8px;
+    opacity: 0.7;
+}
+
+/* =====================
+   DARK THEME
+   ===================== */
+
+/* Dark background */
+html.theme-dark body {
+    background: #09090b;
+    color: #f5f5f5;
+}
+
+/* Content boxes (home hero, cards, sign in/up, dashboards, settings) */
+html.theme-dark main,
+html.theme-dark .page-container,
+html.theme-dark section,
+html.theme-dark .container,
+html.theme-dark .dashboard-container,
+html.theme-dark .section-box,
+html.theme-dark .settings-modal,
+html.theme-dark .auth-box,
+html.theme-dark .hero-section,
+html.theme-dark .feature-box,
+html.theme-dark .instruction-panel,
+html.theme-dark .checklist-item-card {
+    background: #404042;
+    color: #f5f5f5;
+}
+
+/* Header/banner in DARK MODE – solid black */
+html.theme-dark .site-header,
+html.theme-dark header {
+    background-color: #09090b !important;
+    border-bottom-color: #09090b;
+    box-shadow: none;
+}
+
+/* Links – white, not blue */
+html.theme-dark a,
+html.theme-dark a:visited {
+    color: #ffffff;
+}
+
+/* BUTTON PALETTE (dark)
+   Main three colors match light theme, but darker with white text
+   (for Home hero buttons and any .pixel-button with these classes)
+*/
+
+/* Pink – primary */
+html.theme-dark .action-button.primary,
+html.theme-dark .pixel-button.primary {
+    background: #c06096;
+    color: #ffffff;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Yellow – secondary */
+html.theme-dark .action-button.secondary,
+html.theme-dark .pixel-button.secondary {
+    background: #b8a51b;
+    color: #ffffff;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Blue – tertiary */
+html.theme-dark .action-button.tertiary,
+html.theme-dark .pixel-button.tertiary {
+    background: #4e8bd9;
+    color: #ffffff;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Terminals in dark theme stay green "power" buttons */
+html.theme-dark .terminal-link {
+    background: #1e7c2b;
+    color: #ffffff;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Hover effect in dark mode */
+html.theme-dark .terminal-link:hover,
+html.theme-dark .action-button:hover,
+html.theme-dark .pixel-button:hover,
+html.theme-dark .setting-action-button:hover,
+html.theme-dark .nav-buttons a:hover,
+html.theme-dark .theme-option-button:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000000;
+}
+
+/* Dark theme: force dashboard footer buttons into dark palette */
+html.theme-dark .logout-link {
+    background: #7d7f83 !important;
+    /* darker gray */
+    color: #ffffff !important;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Inputs */
+html.theme-dark input,
+html.theme-dark select,
+html.theme-dark textarea {
+    background: #000000;
+    color: #f5f5f5;
+    border: 1px solid #f5f5f5;
+}
+
+/* Keep dark text on bright cards (yellow student cards, etc.) */
+html.theme-dark .classroom-item,
+html.theme-dark .create-form,
+html.theme-dark .auth-box,
+html.theme-dark .student-item,
+html.theme-dark .checklist-item-card,
+html.theme-dark .empty-message {
+    color: #000000;
+}
+
+/* =====================
+   MINECRAFT THEME
+   ===================== */
+/* Colors based on your requested palette:
+   - page background: #48494a
+   - content boxes:  #404042
+   - banner:         #c9cbcd
+   - primary btn:    bright green
+   - secondary btn:  purple
+   - tertiary btn:   light gray
+*/
+
+html.theme-minecraft body {
+    background: #48494a;
+    color: #ffffff;
+}
+
+/* Global MinecraftTen font for EVERYTHING (non-heading) in this mode */
+html.theme-minecraft body,
+html.theme-minecraft body * {
+    font-family: "Courier New", monospace !important;
+}
+
+html.theme-minecraft .action-button,
+html.theme-minecraft .terminal-link,
+html.theme-minecraft .nav-buttons a,
+html.theme-minecraft .setting-action-button,
+html.theme-minecraft .theme-option-button,
+html.theme-minecraft .pixel-button {
+    font-family:"Courier New", monospace;
+    text-transform: uppercase;
+    font-weight: bold;
+    border: 4px solid #000000;
+    box-shadow: 4px 4px 0 #000000;
+    transition: all 0.1s ease;
+}
+
+/* Content boxes (home hero, cards, sign in/up, dashboards, settings) */
+html.theme-minecraft main,
+html.theme-minecraft .page-container,
+html.theme-minecraft section,
+html.theme-minecraft .container,
+html.theme-minecraft .dashboard-container,
+html.theme-minecraft .section-box,
+html.theme-minecraft .settings-modal,
+html.theme-minecraft .auth-box,
+html.theme-minecraft .hero-section,
+html.theme-minecraft .feature-box,
+html.theme-minecraft .instruction-panel,
+html.theme-minecraft .checklist-item-card {
+    background: #404042;
+    color: #ffffff;
+}
+
+/* Header banner */
+html.theme-minecraft .site-header,
+html.theme-minecraft header {
+    background-color: #c9cbcd;
+    border-bottom: 4px solid #000000;
+    box-shadow: 0 4px 0 #000000;
+}
+
+/* Links – white, not blue */
+html.theme-minecraft a,
+html.theme-minecraft a:visited {
+    color: #ffffff;
+}
+
+/* BUTTON PALETTE (minecraft)
+   Button text is black (matches reference screenshot).
+*/
+
+/* Primary: bright green – often used for main actions / terminals */
+html.theme-minecraft .terminal-link,
+html.theme-minecraft .action-button.primary,
+html.theme-minecraft .pixel-button.primary {
+    background: #2dbb3f;
+    color: #000000;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Secondary: purple */
+html.theme-minecraft .action-button.secondary,
+html.theme-minecraft .pixel-button.secondary {
+    background: #5947a5;
+    color: #000000;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Tertiary: dark panel gray (#1f1e25 requested) for extra actions */
+html.theme-minecraft .nav-buttons a,
+html.theme-minecraft .setting-action-button,
+html.theme-minecraft .theme-option-button,
+html.theme-minecraft .action-button.tertiary,
+html.theme-minecraft .pixel-button.tertiary {
+    background: #1f1e25;
+    color: #ffffff;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Hover effect in Minecraft theme */
+html.theme-minecraft .terminal-link:hover {
+    background: #1f8a2d;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000000;
+}
+
+html.theme-minecraft .action-button.primary:hover,
+html.theme-minecraft .pixel-button.primary:hover {
+    background: #249332;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000000;
+}
+
+html.theme-minecraft .action-button.secondary:hover,
+html.theme-minecraft .pixel-button.secondary:hover {
+    background: #3f347a;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000000;
+}
+
+html.theme-minecraft .nav-buttons a:hover,
+html.theme-minecraft .setting-action-button:hover,
+html.theme-minecraft .theme-option-button:hover,
+html.theme-minecraft .action-button.tertiary:hover,
+html.theme-minecraft .pixel-button.tertiary:hover {
+    background: #3a3944;
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #000000;
+}
+
+/* Inputs – dark strips like Minecraft demo */
+html.theme-minecraft input,
+html.theme-minecraft select,
+html.theme-minecraft textarea {
+    background: #222326;
+    color: #ffffff;
+    border: 2px solid #000000;
+}
+
+/* Headings with Minecraft-style shadow (color + shadow only) */
+html.theme-minecraft h1,
+html.theme-minecraft h2,
+html.theme-minecraft h3,
+html.theme-minecraft h4 {
+    color: #ffffff;
+    text-shadow: 2px 2px #000000;
+}
+
+/* Theme button selected color in Minecraft mode */
+html.theme-minecraft .theme-option-button.theme-option-selected {
+    background: #2dbb3f;
+    color: #000000;
+}
+
+/* Minecraft theme: footer buttons use tertiary color */
+html.theme-minecraft .logout-link {
+    background: #1f1e25 !important;
+    /* your requested tertiary */
+    color: #ffffff !important;
+    border-color: #000000;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+/* Dark + Minecraft: hero subtitle should be white, not gray */
+html.theme-dark .hero-subtitle,
+html.theme-minecraft .hero-subtitle {
+    color: #ffffff;
+    box-shadow: #000;
+}
+
+/* Default danger text color (light mode) */
+.danger-text {
+    font-family: 'Courier New', monospace;
+    color: #333333;
+}
+
+/* Dark / Minecraft: danger text should be bright */
+html.theme-dark .danger-text,
+html.theme-minecraft .danger-text {
+    color: #ffffff;
+}
+
+html.theme-dark .hero-title,
+html.theme-minecraft .hero-title {
+    color: #ffffff;
+    box-shadow: #000;
+}
+
+/* Minecraft: classroom cards should use black text for readability */
+html.theme-minecraft .classroom-item,
+html.theme-minecraft .classroom-item *,
+html.theme-minecraft .student-item,
+html.theme-minecraft .student-item * {
+    color: #000000;
+}
+
+/* Minecraft theme: headers should use MinecraftRegular font */
+html.theme-minecraft h1,
+html.theme-minecraft h2,
+html.theme-minecraft h3,
+html.theme-minecraft h4,
+html.theme-minecraft h5,
+html.theme-minecraft h6,
+html.theme-minecraft .section-title,
+html.theme-minecraft .hero-title,
+html.theme-minecraft .welcome-title {
+    font-family: "MinecraftRegular", "Courier New", monospace !important;
+}
+
+/* Personal dashboard: use primary color on checklist blocks */
+html.theme-minecraft .checklist-item-card {
+    background: #2dbb3f !important;
+    /* primary green */
+    color: #000 !important;
+}
+
+html.theme-dark .checklist-item-card {
+    background: #c06096 !important;
+    /* dark mode pink primary */
+    color: #fff !important;
+}
+
+html:not(.theme-dark):not(.theme-minecraft) .checklist-item-card {
+    background: #FD91C6 !important;
+    /* light theme primary pink */
+    color: #000 !important;
 }

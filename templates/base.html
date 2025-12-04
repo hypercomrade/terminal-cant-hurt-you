@@ -1,29 +1,74 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Terminal Can't Hurt You{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {# your global CSS, if any #}
+    <!-- Main site styles -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Minecraft CSS framework (make sure this file exists in static/css/) -->
+    <link id="minecraft-css" rel="stylesheet" href="{% static 'css/minecraft-css-framework-v-1.0.0.css' %}" disabled>
+
+    <!-- Load stored theme as early as possible -->
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('siteTheme') || 'light';
+                var root = document.documentElement;
+                var mcLink = document.getElementById('minecraft-css');
+
+                root.classList.remove('theme-dark', 'theme-minecraft');
+
+                if (theme === 'dark') {
+                    root.classList.add('theme-dark');
+                } else if (theme === 'minecraft') {
+                    root.classList.add('theme-minecraft');
+                }
+
+                if (mcLink) {
+                    mcLink.disabled = (theme !== 'minecraft');
+                }
+            } catch (e) { }
+
+            // Logo swap helper, used on load and when theme changes
+            function updateLogo() {
+                var img = document.getElementById('site-logo');
+                if (!img) return;
+
+                var normalSrc = img.getAttribute('data-logo-normal');
+                var minecraftSrc = img.getAttribute('data-logo-minecraft');
+
+                if (document.documentElement.classList.contains('theme-minecraft') && minecraftSrc) {
+                    img.src = minecraftSrc;
+                } else if (normalSrc) {
+                    img.src = normalSrc;
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', updateLogo);
+
+            // Expose function globally so settings page can call it
+            window.updateThemeLogo = updateLogo;
+        })();
+    </script>
 
     <style>
         body {
             margin: 0;
             font-family: 'Courier New', Courier, monospace;
-            background: #f8f8f8;
         }
 
-       
         .site-header {
             background-color: #000;
             border-bottom: 1px solid #000;
-            padding: 16px 0;             
+            padding: 16px 0;
             display: flex;
-            justify-content: center;      
-            align-items: center;          
+            justify-content: center;
+            align-items: center;
         }
 
         .logo-link {
@@ -31,7 +76,7 @@
         }
 
         .site-logo {
-            height: 130px;                 /* make the logo bigger */
+            height: 130px;
             max-width: 100%;
             display: block;
         }
@@ -42,22 +87,21 @@
             padding: 20px;
         }
     </style>
-
-    {# per-page extra head content #}
-    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
-<header class="site-header">
-    <a href="{% url 'home' %}" class="logo-link">
-        <img src="{% static 'images/tchu_logo.png' %}" alt="Terminal Can't Hurt You" class="site-logo">
-    </a>
-</header>
+    <header class="site-header">
+        <a href="{% url 'home' %}" class="logo-link">
+            <img id="site-logo" src="{% static 'images/tchu_logo.png' %}"
+                data-logo-normal="{% static 'images/tchu_logo.png' %}"
+                data-logo-minecraft="{% static 'images/TCHUMine.png' %}" alt="Terminal Can't Hurt You"
+                class="site-logo">
+        </a>
+    </header>
 
-<main class="page-container">
-    {% block content %}{% endblock %}
-</main>
-
+    <main class="page-container">
+        {% block content %}{% endblock %}
+    </main>
 </body>
-</html>
 
+</html>
