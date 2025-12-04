@@ -28,7 +28,7 @@
     text-transform: uppercase;
     letter-spacing: 2px;
     margin-bottom: 20px;
-    text-shadow: 4px 4px 0 #000;
+    text-shadow: 2.5px 2.5px 0 gray;
 }
 
 .hero-subtitle {

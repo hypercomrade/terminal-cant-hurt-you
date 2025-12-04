@@ -1,4 +1,3 @@
-{% load static %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,19 +8,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
 
   <style>
-    /* ==============================
-      RESET & BASE
-    ============================== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
-      height: 100%;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html,body { height: 100%; }
     body {
       background-color: #1e1e1e;
       font-family: "Courier New", monospace;
@@ -30,12 +18,8 @@
       overflow: hidden;
     }
 
-
-    /* ==============================
-      MAIN LAYOUT
-    ============================== */
-    .left {
-      width: 70%;
+    .full {
+      width: 100%;
       display: flex;
       flex-direction: column;
       min-width: 500px;
@@ -43,165 +27,42 @@
 
     .right {
       width: 30%;
-      background: #2b2b2b;
-      color: #eee;
-      padding: 20px;
-      border-left: 2px solid #444;
-      overflow-y: auto;
+      background:#2b2b2b;
+      color:#eee;
+      padding:20px;
+      border-left:2px solid #444;
+      overflow-y:auto;
     }
 
-
-    /* ==============================
-      HEADER & FOOTER
-    ============================== */
-    .header,
-    .footer {
+    .header, .footer {
       background-color: #2d2d2d;
       color: #ccc;
       padding: 8px 15px;
       font-size: 14px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items:center;
     }
 
-    .status {
-      display: flex;
-      gap: 15px;
-    }
+    #terminal { flex:1; margin:10px; border-radius:5px; box-shadow:0 0 10px rgba(0,0,0,0.5); height: calc(100% - 120px); }
+    .controls { display:flex; gap:8px; }
+    .control-btn { width:12px; height:12px; border-radius:50%; }
+    .close{ background:#ff5f56; } .minimize{ background:#ffbd2e; } .maximize{ background:#27c93f; }
 
-    .controls {
-      display: flex;
-      gap: 8px;
-    }
+    .status { display:flex; gap:15px; }
 
-    .control-btn {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
+    h2 { margin-bottom: 12px; font-size: 18px; color:#fff; }
 
-    .close { background: #ff5f56; }
-    .minimize { background: #ffbd2e; }
-    .maximize { background: #27c93f; }
+    .checklist-item { margin-bottom: 15px; font-size: 16px; display:flex; align-items:center; gap:10px; }
+    .checkmark { width:20px; height:20px; border:2px solid #888; display:inline-block; border-radius:4px; }
+    .checkmark.checked { background:#27c93f; border-color:#27c93f; }
+    .task-desc { color:#ddd; }
 
-
-    /* ==============================
-      TERMINAL
-    ============================== */
-    #terminal {
-      flex: 1;
-      margin: 10px;
-      height: calc(100% - 120px);
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-
-
-    /* ==============================
-      CHECKLIST BASE
-    ============================== */
-    h2 {
-      margin-bottom: 12px;
-      font-size: 18px;
-      color: #fff;
-    }
-
-    .checklist-item {
-      margin-bottom: 15px;
-      font-size: 16px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .checkmark {
-      width: 20px;
-      height: 20px;
-      border: 2px solid #888;
-      display: inline-block;
-      border-radius: 4px;
-      flex-shrink: 0;
-      margin-left: 0;
-    }
-
-    .checkmark.checked {
-      background: #27c93f;
-      border-color: #27c93f;
-    }
-
-    .task-desc {
-      color: #ddd;
-      margin-left: 0;
-    }
-
-    .small {
-      font-size: 12px;
-      color: #bbb;
-      margin-top: 10px;
-    }
-
-
-    /* ==============================
-      EXPANDABLE INSTRUCTIONS
-    ============================== */
-    .expandable {
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .check-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding-left: 0;
-      margin-left: 0;
-      width: 100%;
-    }
-
-    .instruction-panel {
-      background: #1e1e1e;
-      border-left: 3px solid #27c93f;
-      margin-left: 30px;
-      margin-top: 8px;
-      padding: 10px;
-      font-size: 14px;
-      line-height: 1.5;
-      color: #ccc;
-
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s ease;
-    }
-
-    .expandable.open .instruction-panel {
-      max-height: 400px;
-    }
-
-    .instruction-panel pre {
-      background: #111;
-      padding: 8px;
-      border-radius: 4px;
-      margin: 6px 0;
-      color: #9cdcfe;
-      overflow-x: auto;
-    }
-
-
-    /* ==============================
-      ALIGNMENT FIX
-    ============================== */
-    .check-header,
-    .checkmark,
-    .task-desc {
-      box-sizing: border-box;
-    }
-
+    .small { font-size:12px; color:#bbb; margin-top:10px; }
   </style>
 </head>
 <body>
-  <div class="left">
+  <div class="full">
     <div class="header">
       <div>PowerShell — 80x24</div>
       <div class="controls">
@@ -222,110 +83,13 @@
     </div>
   </div>
 
-  <div class="right">
-    <h2>Task Checklist (click on tasks to view more)</h2>
-
-  <div class="checklist-item expandable">
-    <div class="check-header">
-      <div id="check-list" class="checkmark {% if checklist.list_files %}checked{% endif %}" data-key="list_files" aria-hidden="true"></div>
-      <div class="task-desc">List files (Get-ChildItem / ls)</div>
-    </div>
-    <div class="instruction-panel">
-      <p><strong>Description:</strong> Shows all files and folders in the current directory.</p>
-      <p><br><strong>Syntax:</strong></p>
-      <pre>Get-ChildItem</pre>
-      <p>or</p>
-      <pre>ls</pre>
-      <p><br><strong>Tip:</strong> Use this often to understand your location.</p>
-    </div>
-  </div>
-
-
-  <div class="checklist-item expandable">
-    <div class="check-header">
-      <div id="check-info" class="checkmark {% if checklist.system_info %}checked{% endif %}" data-key="system_info" aria-hidden="true"></div>
-      <div class="task-desc">System information (Get-Help, Get-Command, Get-Alias)</div>
-    </div>
-    <div class="instruction-panel">
-      <p><strong>Description:</strong> Displays help, available commands, and command shortcuts.</p>
-      <p><br><strong>Syntax:</strong></p>
-      <pre>Get-Help</pre>
-      <pre>Get-Command</pre>
-      <pre>Get-Alias</pre>
-      <p><br><strong>Tip:</strong> This allows you to quickly learn available commands and aliases (aliases are alternate names for commands, an example is ls and Get-ChildItem). This is especially helpful when you are working with custom commands and functions.</p>
-    </div>
-  </div>
-
-
-  <div class="checklist-item expandable">
-    <div class="check-header">
-      <div id="check-location" class="checkmark {% if checklist.move_location %}checked{% endif %}" data-key="move_location" aria-hidden="true"></div>
-      <div class="task-desc">Move location (Set-Location / cd)</div>
-    </div>
-    <div class="instruction-panel">
-      <p><strong>Description:</strong> Changes the current working directory.</p>
-      <p><br><strong>Syntax:</strong></p>
-      <pre>Set-Location FolderName</pre>
-      <pre>cd FolderName</pre>
-      <pre>cd ..</pre>
-      <p><br><strong>Tip:</strong> Use <code>cd ..</code> to move up one directory level. Navigation is essential for working with files efficiently.</p>
-    </div>
-  </div>
-
-
-  <div class="checklist-item expandable">
-    <div class="check-header">
-      <div id="check-readwrite" class="checkmark {% if checklist.read_write %}checked{% endif %}" data-key="read_write" aria-hidden="true"></div>
-      <div class="task-desc">Read / Write files (Get-Content, Set-Content, Add-Content)</div>
-    </div>
-    <div class="instruction-panel">
-      <p><strong>Description:</strong> Reads the contents of files and writes or appends text to them.</p>
-      <p><br><strong>Syntax:</strong></p>
-      <pre>Get-Content file.txt</pre>
-      <pre>Set-Content file.txt "text"</pre>
-      <pre>Add-Content file.txt "more text"</pre>
-      <p><br><strong>Tip:</strong> Use <code>Set-Content</code> to overwrite a file and <code>Add-Content</code> to append without deleting existing text.</p>
-    </div>
-  </div>
-
-
-  <div class="checklist-item expandable">
-    <div class="check-header">
-      <div id="check-manipulate" class="checkmark {% if checklist.manipulate_files %}checked{% endif %}" data-key="manipulate_files" aria-hidden="true"></div>
-      <div class="task-desc">Manipulate files (New-Item, Remove-Item, Copy-Item, Move-Item)</div>
-    </div>
-    <div class="instruction-panel">
-      <p><strong>Description:</strong> Creates, deletes, copies, and moves files within the file system.</p>
-      <p><br><strong>Syntax:</strong></p>
-      <pre>New-Item file.txt</pre>
-      <pre>Remove-Item file.txt</pre>
-      <pre>Copy-Item source.txt destination.txt</pre>
-      <pre>Move-Item source.txt Folder\source.txt</pre>
-      <p><br><strong>Tip:</strong> Be careful with <code>Remove-Item</code>! Deleted files cannot be recovered in real terminals.</p>
-    </div>
-  </div>
-
-
-  <div class="checklist-item expandable">
-    <div class="check-header">
-      <div id="check-navigation" class="checkmark {% if checklist.navigate %}checked{% endif %}" data-key="navigate" aria-hidden="true"></div>
-      <div class="task-desc">Navigate back/forward (cd -)</div>
-    </div>
-    <div class="instruction-panel">
-      <p><strong>Description:</strong> Switches between the current and previous directory.</p>
-      <p><br><strong>Syntax:</strong></p>
-      <pre>cd -</pre>
-      <p><br><strong>Tip:</strong> This is useful when frequently switching between two working directories without retyping long paths.</p>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
 
   <script>
-    /* ==============================
-      TERMINAL INIT
-    ============================== */
+  // --------------------------
+  // Terminal init
+  // --------------------------
   const term = new Terminal({
     cursorBlink: true,
     fontSize: 14,
@@ -344,9 +108,9 @@
   fitAddon.fit();
   window.addEventListener("resize", () => fitAddon.fit());
 
-    /* ==============================
-      STATE AND VFS
-    ============================== */
+  // --------------------------
+  // State + VFS
+  // --------------------------
   let currentLine = "";
   let commandHistory = [];
   let historyIndex = -1;
@@ -407,9 +171,9 @@
     return typeof node === "object";
   }
 
-    /* ==============================
-      PROMPT
-    ============================== */
+  // --------------------------
+  // Prompt
+  // --------------------------
   function prompt() {
     term.write(`\r\nPS ${currentLocation}> `);
   }
@@ -417,52 +181,18 @@
   term.write("PowerShell Emulator\r\nType 'Get-Help' for assistance.");
   prompt();
 
-    /* ==============================
-      CHECKLIST HELPERS
-    ============================== */
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + "=")) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-
-  const CHECKLIST_UPDATE_URL = "{% url 'powershell_checklist_update' %}";
-
-  function updateChecklist(key) {
-    fetch(CHECKLIST_UPDATE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-      body: JSON.stringify({ key: key, value: true }),
-    }).catch(() => {});
-  }
-
-  // id = element id; key = model field name
-  function markCheck(id, key) {
+  // --------------------------
+  // Checklist helpers
+  // --------------------------
+  function markCheck(id) {
     const el = document.getElementById(id);
-    if (!el) return;
-    if (!el.classList.contains("checked")) {
-      el.classList.add("checked");
-      if (key) updateChecklist(key);
-    }
+    if (el && !el.classList.contains('checked')) el.classList.add('checked');
   }
 
-  
-
-    /* ==============================
-      COMMAND PROCESSING
-    ============================== */
+  // --------------------------
+  // Command processing
+  // returns boolean success
+  // --------------------------
   function processCommand(input) {
     const raw = input.trim();
     if (!raw) return false;
@@ -728,43 +458,37 @@
 
     // After command executed, mark checklist items only if success true:
     if (success) {
-  // list files
-  if (["ls","gci","get-childitem"].includes(cmd))
-    markCheck("check-list", "list_files");
+      // list files
+      if (["ls","gci","get-childitem"].includes(cmd)) markCheck('check-list');
 
-  // system info (help / get-command / get-alias)
-  if (["get-help","help","get-command","get-alias"].includes(cmd))
-    markCheck("check-info", "system_info");
+      // system info (help / get-command / get-alias)
+      if (["get-help","help","get-command","get-alias"].includes(cmd)) markCheck('check-info');
 
-  // set-location variants
-  if (["cd","sl","set-location"].includes(cmd)) {
-    markCheck("check-location", "move_location");
-    // cd - specifically checks navigation
-    if (args[0] === "-" || (cmd === "cd" && args[0] === "-")) {
-      markCheck("check-navigation", "navigate");
+      // set-location variants
+      if (["cd","sl","set-location"].includes(cmd)) {
+        markCheck('check-location');
+        // cd - specifically checks navigation
+        if (args[0] === "-" || (cmd === "cd" && args[0] === "-")) {
+          markCheck('check-navigation');
+        }
+      }
+
+      // read/write files
+      if (["gc","cat","get-content","set-content","add-content"].includes(cmd)) markCheck('check-readwrite');
+
+      // manipulate files (new, remove, copy, move)
+      if (["ni","new-item","rm","ri","remove-item","copy-item","cp","move-item","mv"].includes(cmd)) markCheck('check-manipulate');
+
+      // cd - might be entered as command only
+      if (cmd === "cd" && args[0] === "-") markCheck('check-navigation');
     }
-  }
-
-  // read/write files
-  if (["gc","cat","get-content","set-content","add-content"].includes(cmd))
-    markCheck("check-readwrite", "read_write");
-
-  // manipulate files (new, remove, copy, move)
-  if (["ni","new-item","rm","ri","remove-item","copy-item","cp","move-item","mv"].includes(cmd))
-    markCheck("check-manipulate", "manipulate_files");
-
-  // cd - might be entered as command only
-  if (cmd === "cd" && args[0] === "-")
-    markCheck("check-navigation", "navigate");
-}
-
 
     return success;
   }
 
-    /* ==============================
-      TERMINAL INPUT HANDLING
-    ============================== */
+  // --------------------------
+  // Terminal input handling
+  // --------------------------
   term.onData(data => {
     const code = data.charCodeAt(0);
 
@@ -813,18 +537,6 @@
   }
 
   term.focus();
-
-    /* ==============================
-      EXPANDABLE CHECKLIST
-    ============================== */
-  document.querySelectorAll(".expandable").forEach(item => {
-    const header = item.querySelector(".check-header");
-
-    header.addEventListener("click", () => {
-      item.classList.toggle("open");
-    });
-  });
-
   </script>
 </body>
 </html>

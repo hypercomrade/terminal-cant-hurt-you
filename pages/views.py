@@ -14,6 +14,11 @@ import json
 class HomePage(TemplateView):
     template_name = "home.html"
     
+class BashSandbox(TemplateView):
+    template_name = "bash_sandbox.html"
+
+class PowershellSandbox(TemplateView):
+    template_name = "powershell_sandbox.html"
 
 class ZshTerminal(TemplateView):
     template_name = "zsh_terminal.html"
