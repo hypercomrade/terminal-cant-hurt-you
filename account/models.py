@@ -36,7 +36,6 @@ class Classroom(models.Model):
             self.code = secrets.token_urlsafe(6)
         self.code = self.code.strip().upper()
         super().save(*args, **kwargs)
-        
 
     def __str__(self):
         return f"{self.name} ({self.code})"
@@ -48,7 +47,7 @@ class Student(models.Model):
     )
     classroom = models.ManyToManyField(
         Classroom,
-        related_name='students',
+        related_name="students",
         blank=True,
     )
 
@@ -63,7 +62,6 @@ class Personal(models.Model):
 
     def __str__(self):
         return f"Personal: {self.user.first_name} {self.user.last_name}"
-    
 
 
 class PowerShellChecklist(models.Model):
@@ -81,3 +79,24 @@ class PowerShellChecklist(models.Model):
 
     def __str__(self):
         return f"PowerShell Checklist for {self.user.username}"
+
+
+class BashChecklist(models.Model):
+    """
+    Mirrors PowerShellChecklist but for the Bash trainer.
+    """
+
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name="bash_checklist",
+    )
+    list_files = models.BooleanField(default=False)
+    system_info = models.BooleanField(default=False)
+    move_location = models.BooleanField(default=False)
+    read_write = models.BooleanField(default=False)
+    manipulate_files = models.BooleanField(default=False)
+    navigate = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Bash Checklist for {self.user.username}"

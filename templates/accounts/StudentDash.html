@@ -4,7 +4,6 @@
 {% block content %}
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Student Dashboard</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -216,6 +215,63 @@
             margin-bottom: 10px;
             text-align: center;
         }
+
+        /* Checklist cards reused from PersonalDash */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .checklist-item-card {
+            background: #FFF026;
+            border: 3px solid #000;
+            padding: 10px 14px;
+            position: relative;
+            box-shadow: 3px 3px 0 #000;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .checklist-item-card::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: -3px;
+            bottom: -3px;
+            border: 3px solid #000;
+            background: #fdf7b0;
+            z-index: -1;
+        }
+
+        .check-label {
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .check-status {
+            font-size: 1.2em;
+        }
+
+        .check-status.complete {
+            color: #008000;
+        }
+
+        .check-status.incomplete {
+            color: #aa0000;
+        }
+
+        .check-legend {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #444;
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -232,6 +288,114 @@
         {% if success %}
         <p class="message-success">{{ success }}</p>
         {% endif %}
+
+        <!-- Terminal Progress -->
+        <div class="section-box">
+            <h2 class="section-title">Your Terminal Progress</h2>
+
+            <!-- PowerShell -->
+            <h3 style="font-family:'Courier New', monospace; margin-bottom:8px;">PowerShell</h3>
+            {% with checklist=request.user.powershell_checklist %}
+            {% if checklist %}
+            <div class="checklist-grid">
+                <div class="checklist-item-card">
+                    <span class="check-label">LF</span>
+                    <span class="check-status {% if checklist.list_files %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.list_files|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">SI</span>
+                    <span class="check-status {% if checklist.system_info %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.system_info|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">ML</span>
+                    <span class="check-status {% if checklist.move_location %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.move_location|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">RW</span>
+                    <span class="check-status {% if checklist.read_write %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.read_write|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">MF</span>
+                    <span class="check-status {% if checklist.manipulate_files %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.manipulate_files|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">NAV</span>
+                    <span class="check-status {% if checklist.navigate %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.navigate|yesno:"✔,✘" }}
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-message" style="margin-bottom:10px;">
+                No PowerShell progress yet. Use the PowerShell trainer to begin.
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Bash -->
+            <h3 style="font-family:'Courier New', monospace; margin:16px 0 8px;">Bash</h3>
+            {% with checklist=request.user.bash_checklist %}
+            {% if checklist %}
+            <div class="checklist-grid">
+                <div class="checklist-item-card">
+                    <span class="check-label">LF</span>
+                    <span class="check-status {% if checklist.list_files %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.list_files|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">SI</span>
+                    <span class="check-status {% if checklist.system_info %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.system_info|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">ML</span>
+                    <span class="check-status {% if checklist.move_location %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.move_location|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">RW</span>
+                    <span class="check-status {% if checklist.read_write %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.read_write|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">MF</span>
+                    <span class="check-status {% if checklist.manipulate_files %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.manipulate_files|yesno:"✔,✘" }}
+                    </span>
+                </div>
+                <div class="checklist-item-card">
+                    <span class="check-label">NAV</span>
+                    <span class="check-status {% if checklist.navigate %}complete{% else %}incomplete{% endif %}">
+                        {{ checklist.navigate|yesno:"✔,✘" }}
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-message" style="margin-top:10px;">
+                No Bash progress yet. Use the Bash trainer to begin.
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <div class="check-legend">
+                LF = List files, SI = System information, ML = Move location,<br>
+                RW = Read / write files, MF = Manipulate files, NAV = Navigation (cd -)
+            </div>
+        </div>
 
         <!-- Your Classes -->
         <div class="section-box">
@@ -276,6 +440,5 @@
     </div>
 
 </body>
-
 </html>
 {% endblock %}

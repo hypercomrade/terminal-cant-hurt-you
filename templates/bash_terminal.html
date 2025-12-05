@@ -1,308 +1,635 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Bash Terminal Emulator</title>
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css"
-        />
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bash Terminal Emulator</title>
+
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css"
+  />
+
+  <style>
+    /* RESET & BASE */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background-color: #1e1e1e;
+      font-family: "Courier New", monospace;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* MAIN LAYOUT */
+    .left {
+      width: 70%;
+      display: flex;
+      flex-direction: column;
+      min-width: 500px;
+    }
+
+    .right {
+      width: 30%;
+      background: #2b2b2b;
+      color: #eee;
+      padding: 20px;
+      border-left: 2px solid #444;
+      overflow-y: auto;
+    }
+
+    /* HEADER & FOOTER */
+    .header,
+    .footer {
+      background-color: #2d2d2d;
+      color: #ccc;
+      padding: 8px 15px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .status {
+      display: flex;
+      gap: 15px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .control-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .close { background: #ff5f56; }
+    .minimize { background: #ffbd2e; }
+    .maximize { background: #27c93f; }
+
+    /* TERMINAL */
+    #terminal {
+      flex: 1;
+      margin: 10px;
+      height: calc(100% - 120px);
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* CHECKLIST */
+    h2 {
+      margin-bottom: 12px;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .checklist-item {
+      margin-bottom: 15px;
+      font-size: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .check-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .checkmark {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #888;
+      display: inline-block;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .checkmark.checked {
+      background: #27c93f;
+      border-color: #27c93f;
+    }
+
+    .task-desc {
+      color: #ddd;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 10px;
+    }
+
+    /* Expandable instruction panels */
+    .expandable {
+      cursor: pointer;
+    }
+
+    .instruction-panel {
+      background: #1e1e1e;
+      border-left: 3px solid #27c93f;
+      margin-left: 30px;
+      margin-top: 8px;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #ccc;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .expandable.open .instruction-panel {
+      max-height: 400px;
+    }
+
+    .instruction-panel pre {
+      background: #111;
+      padding: 8px;
+      border-radius: 4px;
+      margin: 6px 0;
+      color: #9cdcfe;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="left">
+    <div class="header">
+      <div>bash — 80×24</div>
+      <div class="controls">
+        <div class="control-btn close"></div>
+        <div class="control-btn minimize"></div>
+        <div class="control-btn maximize"></div>
+      </div>
+    </div>
+
+    <div id="terminal"></div>
+
+    <div class="footer">
+      <div>Bash Emulator v1.0</div>
+      <div class="status">
+        <span>UTF-8</span>
+        <span>bash</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <h2>Bash Task Checklist (click tasks for details)</h2>
+
+    {% with checklist=checklist %}
+    <!-- 1) List & locate files (ls, pwd) -->
+    <div class="checklist-item expandable">
+      <div class="check-header">
+        <div id="bash-check-list"
+             class="checkmark {% if checklist.list_files %}checked{% endif %}"
+             data-key="list_files"
+             aria-hidden="true"></div>
+        <div class="task-desc">List &amp; locate files (ls, pwd)</div>
+      </div>
+      <div class="instruction-panel">
+        <p><strong>Description:</strong> See what’s in your current directory and where you are.</p>
+        <p><br><strong>Commands:</strong></p>
+        <pre>ls</pre>
+        <pre>pwd</pre>
+        <p><br><strong>Tip:</strong> Use these often so you always know “where” you are in the filesystem.</p>
+      </div>
+    </div>
+
+    <!-- 2) System info & help (help, whoami, date) -->
+    <div class="checklist-item expandable">
+      <div class="check-header">
+        <div id="bash-check-info"
+             class="checkmark {% if checklist.system_info %}checked{% endif %}"
+             data-key="system_info"
+             aria-hidden="true"></div>
+        <div class="task-desc">System info &amp; help (help, whoami, date)</div>
+      </div>
+      <div class="instruction-panel">
+        <p><strong>Description:</strong> Learn about commands, who you are, and basic system info.</p>
+        <p><br><strong>Commands:</strong></p>
+        <pre>help</pre>
+        <pre>whoami</pre>
+        <pre>date</pre>
+        <p><br><strong>Tip:</strong> These are great “information” commands when you’re exploring a new system.</p>
+      </div>
+    </div>
+
+    <!-- 3) Move location (cd) -->
+    <div class="checklist-item expandable">
+      <div class="check-header">
+        <div id="bash-check-move"
+             class="checkmark {% if checklist.move_location %}checked{% endif %}"
+             data-key="move_location"
+             aria-hidden="true"></div>
+        <div class="task-desc">Move location (cd)</div>
+      </div>
+      <div class="instruction-panel">
+        <p><strong>Description:</strong> Change which folder you are currently in.</p>
+        <p><br><strong>Examples:</strong></p>
+        <pre>cd projects</pre>
+        <pre>cd ..</pre>
+        <pre>cd /home/user</pre>
+        <p><br><strong>Tip:</strong> Combine <code>cd</code> with <code>ls</code> and <code>pwd</code> to navigate confidently.</p>
+      </div>
+    </div>
+
+    <!-- 4) Read / write text (echo) -->
+    <div class="checklist-item expandable">
+      <div class="check-header">
+        <div id="bash-check-readwrite"
+             class="checkmark {% if checklist.read_write %}checked{% endif %}"
+             data-key="read_write"
+             aria-hidden="true"></div>
+        <div class="task-desc">Read / write text (echo)</div>
+      </div>
+      <div class="instruction-panel">
+        <p><strong>Description:</strong> Print or send text to the screen or to a file.</p>
+        <p><br><strong>Examples:</strong></p>
+        <pre>echo "hello world"</pre>
+        <pre>echo "hi" &gt; note.txt</pre>
+        <p><br><strong>Tip:</strong> <code>echo</code> is the simplest way to see variables and quick output.</p>
+      </div>
+    </div>
+
+    <!-- 5) Manipulate files (touch, rm, cp, mv) -->
+    <div class="checklist-item expandable">
+      <div class="check-header">
+        <div id="bash-check-manipulate"
+             class="checkmark {% if checklist.manipulate_files %}checked{% endif %}"
+             data-key="manipulate_files"
+             aria-hidden="true"></div>
+        <div class="task-desc">Manipulate files (touch, rm, cp, mv)</div>
+      </div>
+      <div class="instruction-panel">
+        <p><strong>Description:</strong> Create, delete, copy, and move files.</p>
+        <p><br><strong>Examples:</strong></p>
+        <pre>touch notes.txt</pre>
+        <pre>rm notes.txt</pre>
+        <pre>cp source.txt backup.txt</pre>
+        <pre>mv old.txt archive/old.txt</pre>
+        <p><br><strong>Tip:</strong> In a real shell, <code>rm</code> permanently deletes files—be careful!</p>
+      </div>
+    </div>
+
+    <!-- 6) Navigation & session control (cd -, clear, exit) -->
+    <div class="checklist-item expandable">
+      <div class="check-header">
+        <div id="bash-check-nav"
+             class="checkmark {% if checklist.navigate %}checked{% endif %}"
+             data-key="navigate"
+             aria-hidden="true"></div>
+        <div class="task-desc">Navigation &amp; session control (cd -, clear, exit)</div>
+      </div>
+      <div class="instruction-panel">
+        <p><strong>Description:</strong> Quickly move back, clean the screen, and end the session.</p>
+        <p><br><strong>Examples:</strong></p>
+        <pre>cd -</pre>
+        <pre>clear</pre>
+        <pre>exit</pre>
+        <p><br><strong>Tip:</strong> <code>cd -</code> acts like a “back” button, and <code>clear</code> keeps your view tidy.</p>
+      </div>
+    </div>
+
+    <p class="small">
+      This checklist is tied to your account – once a box is checked, it stays checked across dashboards and classes.
+    </p>
+    {% endwith %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+
+  <script>
+    /* TERMINAL INIT */
+    const term = new Terminal({
+      cursorBlink: true,
+      fontSize: 14,
+      fontFamily: "'Courier New', monospace",
+      theme: {
+        background: "#1e1e1e",
+        foreground: "#f0f0f0",
+        cursor: "#ffffff",
+        selection: "#555555",
+      },
+    });
+
+    const fitAddon = new FitAddon.FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(document.getElementById("terminal"));
+    fitAddon.fit();
+    window.addEventListener("resize", () => fitAddon.fit());
+
+    /* STATE */
+    let currentLine = "";
+    let commandHistory = [];
+    let historyIndex = -1;
+
+    let currentUser = "user";
+    let currentHost = "localhost";
+    let currentDirectory = "~";
+    let previousDirectory = currentDirectory;
+
+    function writePrompt() {
+      term.write(
+        `\r\n\u001b[32m${currentUser}@${currentHost}\u001b[0m:\u001b[34m${currentDirectory}\u001b[0m$ `
+      );
+    }
+
+    term.write("Welcome to Bash Terminal Emulator");
+    term.write('\r\nType "help" to see available commands');
+    writePrompt();
+
+    /* CHECKLIST HELPERS */
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === name + "=") {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    const BASH_CHECKLIST_UPDATE_URL = "{% url 'bash_checklist_update' %}";
+
+    function updateChecklist(key) {
+      fetch(BASH_CHECKLIST_UPDATE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ key: key, value: true }),
+      }).catch(() => {});
+    }
+
+    function markCheck(id, key) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!el.classList.contains("checked")) {
+        el.classList.add("checked");
+        if (key) updateChecklist(key);
+      }
+    }
+
+    /* COMMAND PROCESSING */
+    function processCommand(command) {
+      const raw = command.trim();
+      if (raw === "") return false;
+
+      commandHistory.push(raw);
+      historyIndex = commandHistory.length;
+
+      const parts = raw.split(/\s+/);
+      const baseCmd = parts[0].toLowerCase();
+      const args = parts.slice(1);
+
+      let success = false;
+
+      switch (baseCmd) {
+        case "help":
+          term.write("\r\nAvailable commands:");
+          term.write("\r\n  help     - Show this help message");
+          term.write("\r\n  clear    - Clear the terminal");
+          term.write("\r\n  ls       - List directory contents");
+          term.write("\r\n  pwd      - Print working directory");
+          term.write("\r\n  cd       - Change directory");
+          term.write("\r\n  echo     - Display a line of text");
+          term.write("\r\n  whoami   - Print current user");
+          term.write("\r\n  date     - Display current date and time");
+          term.write("\r\n  touch    - Create an empty file (simulated)");
+          term.write("\r\n  rm       - Remove a file (simulated)");
+          term.write("\r\n  cp       - Copy a file (simulated)");
+          term.write("\r\n  mv       - Move a file (simulated)");
+          term.write("\r\n  exit     - Exit the terminal");
+          success = true;
+          break;
+
+        case "clear":
+          term.clear();
+          success = true;
+          break;
+
+        case "ls":
+          term.write(
+            "\r\nbin   dev   etc   home   lib   proc   tmp   usr   var"
+          );
+          success = true;
+          break;
+
+        case "pwd":
+          term.write(`\r\n${currentDirectory}`);
+          success = true;
+          break;
+
+        case "cd": {
+          const target = args[0] || "";
+          if (target === "-") {
+            const tmp = currentDirectory;
+            currentDirectory = previousDirectory;
+            previousDirectory = tmp;
+          } else if (target === "" || target === "~") {
+            previousDirectory = currentDirectory;
+            currentDirectory = "~";
+          } else if (target === "..") {
+            previousDirectory = currentDirectory;
+            if (currentDirectory !== "~") {
+              const parts = currentDirectory.split("/");
+              parts.pop();
+              const joined = parts.join("/");
+              currentDirectory = joined || "~";
             }
-
-            body {
-                background-color: #1e1e1e;
-                font-family: "Courier New", monospace;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
+          } else {
+            previousDirectory = currentDirectory;
+            if (currentDirectory === "~") {
+              currentDirectory = `~/${target}`;
+            } else {
+              currentDirectory = `${currentDirectory}/${target}`;
             }
+          }
+          success = true;
+          break;
+        }
 
-            .terminal-container {
-                flex: 1;
-                padding: 10px;
-                display: flex;
-                flex-direction: column;
-            }
+        case "echo":
+          term.write("\r\n" + args.join(" "));
+          success = true;
+          break;
 
-            #terminal {
-                width: 100%;
-                height: 100%;
-                border-radius: 5px;
-                overflow: hidden;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            }
+        case "whoami":
+          term.write("\r\n" + currentUser);
+          success = true;
+          break;
 
-            .header {
-                background-color: #2d2d2d;
-                color: #ccc;
-                padding: 8px 15px;
-                font-size: 14px;
-                display: flex;
-                justify-content: space-between;
-                border-top-left-radius: 5px;
-                border-top-right-radius: 5px;
-            }
+        case "date":
+          term.write("\r\n" + new Date().toString());
+          success = true;
+          break;
 
-            .controls {
-                display: flex;
-                gap: 8px;
-            }
+        case "touch":
+          term.write(
+            "\r\n[touch simulated] Created file: " + (args[0] || "file.txt")
+          );
+          success = true;
+          break;
 
-            .control-btn {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-            }
+        case "rm":
+          term.write(
+            "\r\n[rm simulated] Removed: " + (args[0] || "file.txt")
+          );
+          success = true;
+          break;
 
-            .close {
-                background-color: #ff5f56;
-            }
+        case "cp":
+          term.write(
+            "\r\n[cp simulated] Copied from " +
+              (args[0] || "src") +
+              " to " +
+              (args[1] || "dest")
+          );
+          success = true;
+          break;
 
-            .minimize {
-                background-color: #ffbd2e;
-            }
+        case "mv":
+          term.write(
+            "\r\n[mv simulated] Moved from " +
+              (args[0] || "src") +
+              " to " +
+              (args[1] || "dest")
+          );
+          success = true;
+          break;
 
-            .maximize {
-                background-color: #27c93f;
-            }
+        case "exit":
+          term.write("\r\nGoodbye!");
+          success = true;
+          break;
 
-            .footer {
-                background-color: #2d2d2d;
-                color: #ccc;
-                padding: 5px 15px;
-                font-size: 12px;
-                border-bottom-left-radius: 5px;
-                border-bottom-right-radius: 5px;
-                display: flex;
-                justify-content: space-between;
-            }
+        default:
+          term.write(`\r\nbash: ${baseCmd}: command not found`);
+          success = false;
+          break;
+      }
 
-            .status {
-                display: flex;
-                gap: 15px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="terminal-container">
-            <div class="header">
-                <div>bash — 80×24</div>
-                <div class="controls">
-                    <div class="control-btn close"></div>
-                    <div class="control-btn minimize"></div>
-                    <div class="control-btn maximize"></div>
-                </div>
-            </div>
-            <div id="terminal"></div>
-            <div class="footer">
-                <div>Terminal v1.0</div>
-                <div class="status">
-                    <span>UTF-8</span>
-                    <span>bash</span>
-                </div>
-            </div>
-        </div>
+      /* map every successful command to at least one checklist item */
+      if (success) {
+        // list & locate files
+        if (baseCmd === "ls" || baseCmd === "pwd") {
+          markCheck("bash-check-list", "list_files");
+        }
 
-        <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
-        <script>
-            // Initialize terminal
-            const term = new Terminal({
-                cursorBlink: true,
-                fontSize: 14,
-                fontFamily: "'Courier New', monospace",
-                theme: {
-                    background: "#1e1e1e",
-                    foreground: "#f0f0f0",
-                    cursor: "#ffffff",
-                    selection: "#555555",
-                },
-            });
+        // system info & help
+        if (["help", "whoami", "date"].includes(baseCmd)) {
+          markCheck("bash-check-info", "system_info");
+        }
 
-            // Add fit addon to make terminal responsive
-            const fitAddon = new FitAddon.FitAddon();
-            term.loadAddon(fitAddon);
+        // move location
+        if (baseCmd === "cd") {
+          markCheck("bash-check-move", "move_location");
+          // navigation shortcuts if using cd - or cd ..
+          if (args[0] === "-" || args[0] === "..") {
+            markCheck("bash-check-nav", "navigate");
+          }
+        }
 
-            // Open terminal in container
-            term.open(document.getElementById("terminal"));
-            fitAddon.fit();
+        // read / write text
+        if (baseCmd === "echo") {
+          markCheck("bash-check-readwrite", "read_write");
+        }
 
-            // Handle window resize
-            window.addEventListener("resize", () => {
-                fitAddon.fit();
-            });
+        // manipulate files
+        if (["touch", "rm", "cp", "mv"].includes(baseCmd)) {
+          markCheck("bash-check-manipulate", "manipulate_files");
+        }
 
-            // Terminal state
-            let currentLine = "";
-            let commandHistory = [];
-            let historyIndex = -1;
-            let currentUser = "user";
-            let currentHost = "localhost";
-            let currentDirectory = "~";
+        // navigation & session control (clear / exit also count)
+        if (["clear", "exit"].includes(baseCmd)) {
+          markCheck("bash-check-nav", "navigate");
+        }
+      }
 
-            // Initial prompt
-            function writePrompt() {
-                term.write(
-                    `\r\n\x1b[32m${currentUser}@${currentHost}\x1b[0m:\x1b[34m${currentDirectory}\x1b[0m$ `,
-                );
-            }
+      return success;
+    }
 
-            // Write welcome message
-            term.write("Welcome to Bash Terminal Emulator");
-            term.write('\r\nType "help" to see available commands');
-            writePrompt();
+    /* INPUT HANDLING */
+    term.onData((data) => {
+      const code = data.charCodeAt(0);
 
-            // Process commands
-            function processCommand(command) {
-                const cmd = command.trim();
+      if (code === 13) {
+        // Enter
+        processCommand(currentLine);
+        currentLine = "";
+        writePrompt();
+      } else if (code === 127) {
+        // Backspace
+        if (currentLine.length > 0) {
+          currentLine = currentLine.slice(0, -1);
+          term.write("\b \b");
+        }
+      } else if (code === 27 && data.length > 1 && data[1] === "[") {
+        // arrow keys for history
+        if (data[2] === "A") {
+          // up
+          if (historyIndex > 0) {
+            historyIndex--;
+            clearLine();
+            currentLine = commandHistory[historyIndex];
+            term.write(currentLine);
+          }
+        } else if (data[2] === "B") {
+          // down
+          if (historyIndex < commandHistory.length - 1) {
+            historyIndex++;
+            clearLine();
+            currentLine = commandHistory[historyIndex];
+            term.write(currentLine);
+          } else {
+            clearLine();
+            currentLine = "";
+          }
+        }
+      } else if (code >= 32 && code <= 126) {
+        // printable
+        currentLine += data;
+        term.write(data);
+      }
+    });
 
-                if (cmd === "") {
-                    return;
-                }
+    function clearLine() {
+      term.write("\r\x1b[K");
+      writePrompt();
+    }
 
-                // Add to command history
-                commandHistory.push(cmd);
-                historyIndex = commandHistory.length;
+    term.focus();
 
-                // Parse command and arguments
-                const parts = cmd.split(" ");
-                const baseCmd = parts[0].toLowerCase();
-                const args = parts.slice(1);
-
-                switch (baseCmd) {
-                    case "help":
-                        term.write("\r\nAvailable commands:");
-                        term.write("\r\n  help     - Show this help message");
-                        term.write("\r\n  clear    - Clear the terminal");
-                        term.write("\r\n  ls       - List directory contents");
-                        term.write("\r\n  pwd      - Print working directory");
-                        term.write("\r\n  cd       - Change directory");
-                        term.write("\r\n  echo     - Display a line of text");
-                        term.write("\r\n  whoami   - Print current user");
-                        term.write(
-                            "\r\n  date     - Display current date and time",
-                        );
-                        term.write("\r\n  exit     - Exit the terminal");
-                        break;
-
-                    case "clear":
-                        term.clear();
-                        break;
-
-                    case "ls":
-                        term.write(
-                            "\r\nbin   dev   etc   home   lib   proc   tmp   usr   var",
-                        );
-                        break;
-
-                    case "pwd":
-                        term.write(`\r\n${currentDirectory}`);
-                        break;
-
-                    case "cd":
-                        if (args.length === 0 || args[0] === "~") {
-                            currentDirectory = "~";
-                        } else if (args[0] === "..") {
-                            if (currentDirectory !== "~") {
-                                const dirs = currentDirectory.split("/");
-                                dirs.pop();
-                                currentDirectory = dirs.join("/") || "~";
-                            }
-                        } else {
-                            currentDirectory = args[0];
-                        }
-                        break;
-
-                    case "echo":
-                        term.write(`\r\n${args.join(" ")}`);
-                        break;
-
-                    case "whoami":
-                        term.write(`\r\n${currentUser}`);
-                        break;
-
-                    case "date":
-                        term.write(`\r\n${new Date().toString()}`);
-                        break;
-
-                    case "exit":
-                        term.write("\r\nGoodbye!");
-                        setTimeout(() => {
-                            term.write("\r\n\r\n[Process completed]");
-                        }, 500);
-                        break;
-
-                    default:
-                        term.write(`\r\nbash: ${baseCmd}: command not found`);
-                        break;
-                }
-            }
-
-            // Handle terminal input
-            term.onData((data) => {
-                const code = data.charCodeAt(0);
-
-                // Handle special keys
-                if (code === 13) {
-                    // Enter key
-                    processCommand(currentLine);
-                    currentLine = "";
-                    writePrompt();
-                } else if (code === 127) {
-                    // Backspace key
-                    if (currentLine.length > 0) {
-                        currentLine = currentLine.slice(0, -1);
-                        term.write("\b \b");
-                    }
-                } else if (code === 27) {
-                    // Escape sequences (arrows, etc.)
-                    // Handle arrow keys for command history
-                    if (data.length > 1 && data[1] === "[") {
-                        switch (data[2]) {
-                            case "A": // Up arrow
-                                if (historyIndex > 0) {
-                                    historyIndex--;
-                                    // Clear current line
-                                    term.write("\r\x1b[K");
-                                    currentLine = commandHistory[historyIndex];
-                                    term.write(currentLine);
-                                }
-                                break;
-                            case "B": // Down arrow
-                                if (historyIndex < commandHistory.length - 1) {
-                                    historyIndex++;
-                                    // Clear current line
-                                    term.write("\r\x1b[K");
-                                    currentLine = commandHistory[historyIndex];
-                                    term.write(currentLine);
-                                } else if (
-                                    historyIndex ===
-                                    commandHistory.length - 1
-                                ) {
-                                    historyIndex = commandHistory.length;
-                                    // Clear current line
-                                    term.write("\r\x1b[K");
-                                    currentLine = "";
-                                }
-                                break;
-                        }
-                    }
-                } else if (code >= 32 && code <= 126) {
-                    // Printable characters
-                    currentLine += data;
-                    term.write(data);
-                }
-            });
-
-            // Focus the terminal on load
-            term.focus();
-        </script>
-    </body>
+    /* EXPANDABLE CHECKLIST UI */
+    document.querySelectorAll(".expandable").forEach((item) => {
+      const header = item.querySelector(".check-header");
+      header.addEventListener("click", () => {
+        item.classList.toggle("open");
+      });
+    });
+  </script>
+</body>
 </html>

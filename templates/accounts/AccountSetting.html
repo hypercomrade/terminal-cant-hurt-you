@@ -163,14 +163,27 @@
       This cannot be undone.
     </p>
 
-    <button id="delete-account-btn" class="action-button" style="background:#ff4d4d; margin-top:15px;">
-      Delete Account
-    </button>
+    <!-- buttons side by side -->
+    <div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button id="delete-account-btn" class="action-button" style="background:#ff4d4d;">
+        Delete Account
+      </button>
+
+      <button id="reset-checklists-btn" class="action-button" style="background:#ffd966;">
+        Reset Checklists
+      </button>
+    </div>
 
     <!-- Hidden delete form -->
     <form id="delete-account-form" method="post" style="display:none;">
       {% csrf_token %}
       <input type="hidden" name="action" value="delete_account">
+    </form>
+
+    <!-- Hidden reset-checklists form -->
+    <form id="reset-checklists-form" method="post" style="display:none;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="reset_checklists">
     </form>
   </div>
 </div>
@@ -184,6 +197,18 @@
       <button id="cancel-delete" class="setting-action-button" type="button" style="background:#cccccc;">Cancel</button>
       <button id="confirm-delete" class="setting-action-button" type="button" style="background:#ff4d4d;">Yes,
         Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset checklist popup -->
+<div id="reset-modal" class="settings-modal-overlay">
+  <div class="settings-modal">
+    <div class="settings-modal-title">Reset Checklists?</div>
+    <p>This will clear your PowerShell and Bash checklist progress for this account, but keep your account and classes.</p>
+    <div class="settings-modal-buttons">
+      <button id="cancel-reset" class="setting-action-button" type="button" style="background:#cccccc;">Cancel</button>
+      <button id="confirm-reset" class="setting-action-button" type="button" style="background:#ffd966;">Yes, Reset</button>
     </div>
   </div>
 </div>
@@ -227,10 +252,42 @@
       deleteForm.submit();
     });
   }
+
+  // Reset checklist modal
+  const resetBtn = document.getElementById("reset-checklists-btn");
+  const resetForm = document.getElementById("reset-checklists-form");
+  const resetModal = document.getElementById("reset-modal");
+  const cancelReset = document.getElementById("cancel-reset");
+  const confirmReset = document.getElementById("confirm-reset");
+
+  if (resetBtn) {
+    resetBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      if (resetModal) {
+        resetModal.style.display = "flex";
+      }
+    });
+  }
+
+  if (cancelReset) {
+    cancelReset.addEventListener("click", function () {
+      if (resetModal) {
+        resetModal.style.display = "none";
+      }
+    });
+  }
+
+  if (confirmReset) {
+    confirmReset.addEventListener("click", function () {
+      if (resetForm) {
+        resetForm.submit();
+      }
+    });
+  }
 </script>
 
 <script>
-  // Theme + Minecraft unlock / disable logic
+  // Theme + Minecraft unlock / disable logic  (unchanged)
   (function () {
     const btnLight = document.getElementById("theme-light");
     const btnDark = document.getElementById("theme-dark");
@@ -271,17 +328,15 @@
     }
 
     function hideMinecraftButton() {
-    if (btnMinecraft) {
+      if (btnMinecraft) {
         btnMinecraft.style.display = "none";
+      }
     }
-}
-
 
     function applyThemeClass(theme) {
       const root = document.documentElement;
       const mcLink = document.getElementById("minecraft-css");
 
-      // Remove all theme classes we control here
       root.classList.remove("theme-dark", "theme-minecraft");
 
       if (theme === "dark") {
@@ -289,7 +344,6 @@
       } else if (theme === "minecraft") {
         root.classList.add("theme-minecraft");
       }
-      // theme === "light" → no extra class; light is default
 
       if (mcLink) {
         mcLink.disabled = (theme !== "minecraft");
@@ -321,7 +375,6 @@
       }
     }
 
-    // Load saved theme
     let savedTheme = "light";
     try {
       savedTheme = localStorage.getItem("siteTheme") || "light";
@@ -335,7 +388,6 @@
     selectButton(savedTheme);
     applyThemeClass(savedTheme);
 
-    // Button clicks change selection
     btnLight.addEventListener("click", function () {
       selectButton("light");
     });
@@ -349,7 +401,6 @@
       });
     }
 
-    // Apply button actually applies + saves
     applyBtn.addEventListener("click", function () {
       if (selectedTheme === "minecraft" && !isMinecraftUnlocked()) {
         setStatus("Minecraft mode is still locked.");
@@ -361,9 +412,6 @@
       setStatus("Theme applied.");
     });
 
-    // Konami code sequences:
-    // Forward (unlock + enable Minecraft): ↑ ↑ ↓ ↓ ← → ← →
-    // Reverse (disable Minecraft, go to Dark): → ← → ← ↓ ↓ ↑ ↑
     const konamiForward = [
       "ArrowUp", "ArrowUp",
       "ArrowDown", "ArrowDown",
@@ -383,55 +431,42 @@
     window.addEventListener("keydown", function (e) {
       const key = e.key;
 
-      // ---- Forward sequence: enable / unlock Minecraft ----
+      // Forward sequence: enable / unlock Minecraft
       if (key === konamiForward[posForward]) {
         posForward++;
         if (posForward === konamiForward.length) {
           posForward = 0;
-
-          // Mark unlocked
           try {
             localStorage.setItem("minecraftUnlocked", "yes");
           } catch (err) { }
-
           showMinecraftButton();
           selectButton("minecraft");
           applyThemeClass("minecraft");
           saveTheme("minecraft");
           setStatus("Minecraft mode unlocked!");
-
           if (minecraftModal) {
             minecraftModal.style.display = "flex";
           }
         }
       } else {
-        // reset if wrong key; also check if current key is the start
         posForward = (key === konamiForward[0]) ? 1 : 0;
       }
 
-      // ---- Reverse sequence: turn OFF Minecraft (switch to Dark) ----
-      // ---- Reverse sequence: turn OFF Minecraft + HIDE button ----
-if (key === konamiReverse[posReverse]) {
-    posReverse++;
-    if (posReverse === konamiReverse.length) {
-        posReverse = 0;
-
-        // Re-lock Minecraft so the button disappears
-        try {
+      // Reverse sequence: turn OFF Minecraft + hide button
+      if (key === konamiReverse[posReverse]) {
+        posReverse++;
+        if (posReverse === konamiReverse.length) {
+          posReverse = 0;
+          try {
             localStorage.setItem("minecraftUnlocked", "no");
-        } catch (e) { }
-
-        hideMinecraftButton();
-
-        // Switch back to dark mode
-        selectButton("dark");
-        applyThemeClass("dark");
-        saveTheme("dark");
-        setStatus("Minecraft mode disabled.");
-    }
-
+          } catch (e2) { }
+          hideMinecraftButton();
+          selectButton("dark");
+          applyThemeClass("dark");
+          saveTheme("dark");
+          setStatus("Minecraft mode disabled.");
+        }
       } else {
-        // reset if wrong key; also check if current key is the start
         posReverse = (key === konamiReverse[0]) ? 1 : 0;
       }
     });

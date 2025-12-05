@@ -146,6 +146,7 @@
         Personal Dashboard – {{ request.user.first_name }} {{ request.user.last_name }}
     </h1>
 
+    <!-- PowerShell Checklist -->
     <div class="section-box">
         <h2 class="section-title">Your PowerShell Progress</h2>
 
@@ -203,6 +204,69 @@
         <div class="empty-message">
             You haven't used the PowerShell trainer yet.<br>
             Open the PowerShell terminal from the home page to start tracking your progress!
+        </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Bash Checklist -->
+    <div class="section-box">
+        <h2 class="section-title">Your Bash Progress</h2>
+
+        {% with checklist=request.user.bash_checklist %}
+        {% if checklist %}
+        <div class="checklist-grid">
+            <div class="checklist-item-card">
+                <span class="check-label">List files (LF)</span>
+                <span class="check-status {% if checklist.list_files %}complete{% else %}incomplete{% endif %}">
+                    {{ checklist.list_files|yesno:"✔,✘" }}
+                </span>
+            </div>
+
+            <div class="checklist-item-card">
+                <span class="check-label">System info (SI)</span>
+                <span class="check-status {% if checklist.system_info %}complete{% else %}incomplete{% endif %}">
+                    {{ checklist.system_info|yesno:"✔,✘" }}
+                </span>
+            </div>
+
+            <div class="checklist-item-card">
+                <span class="check-label">Move location (ML)</span>
+                <span class="check-status {% if checklist.move_location %}complete{% else %}incomplete{% endif %}">
+                    {{ checklist.move_location|yesno:"✔,✘" }}
+                </span>
+            </div>
+
+            <div class="checklist-item-card">
+                <span class="check-label">Read / Write (RW)</span>
+                <span class="check-status {% if checklist.read_write %}complete{% else %}incomplete{% endif %}">
+                    {{ checklist.read_write|yesno:"✔,✘" }}
+                </span>
+            </div>
+
+            <div class="checklist-item-card">
+                <span class="check-label">Manipulate files (MF)</span>
+                <span class="check-status {% if checklist.manipulate_files %}complete{% else %}incomplete{% endif %}">
+                    {{ checklist.manipulate_files|yesno:"✔,✘" }}
+                </span>
+            </div>
+
+            <div class="checklist-item-card">
+                <span class="check-label">Navigation (NAV)</span>
+                <span class="check-status {% if checklist.navigate %}complete{% else %}incomplete{% endif %}">
+                    {{ checklist.navigate|yesno:"✔,✘" }}
+                </span>
+            </div>
+        </div>
+
+        <div class="check-legend">
+            LF = List files, SI = System information, ML = Move location,<br>
+            RW = Read / write files, MF = Manipulate files, NAV = Navigation (cd -)
+        </div>
+        {% else %}
+        <div class="empty-message">
+            You haven't used the Bash trainer yet.<br>
+            Open the Bash terminal from the home page to start tracking your progress!
         </div>
         {% endif %}
         {% endwith %}

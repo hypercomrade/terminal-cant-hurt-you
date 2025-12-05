@@ -10,7 +10,14 @@ from .forms import SignUpForm, SignInForm, ProfileUpdateForm, CustomPasswordChan
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import Teacher, Student, Classroom, Personal
+from .models import (
+    Teacher,
+    Student,
+    Classroom,
+    Personal,
+    PowerShellChecklist,
+    BashChecklist,
+)
 
 
 class SignUpView(FormView):
@@ -63,109 +70,51 @@ def logout_view(request):
 
 
 @method_decorator(login_required, name="dispatch")
-class TeacherDashBoardView(TemplateView):
+class TeacherDashBoardView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/TeacherDash.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role != "teacher":
-            return redirect("home")
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        teacher = getattr(user, "teacher_profile", None)
-        classrooms = teacher.classrooms.all() if teacher else []
-        ctx["teacher"] = teacher
-        ctx["classrooms"] = classrooms
-        return ctx
+        context = super().get_context_data(**kwargs)
+        teacher = Teacher.objects.get(user=self.request.user)
+        context["teacher"] = teacher
+        context["classrooms"] = Classroom.objects.filter(teacher=teacher)
 
-    def post(self, request, *args, **kwargs):
-        teacher = request.user.teacher_profile
-        action = request.POST.get("action")
-
-        # Create classroom
-        if action == "create_classroom":
-            name = request.POST.get("classroom_name")
-            if name:
-                Classroom.objects.create(name=name, teacher=teacher)
-
-        # Remove a student from a classroom
-        elif action == "remove_student":
-            classroom_id = request.POST.get("classroom_id")
-            student_id = request.POST.get("student_id")
-
-            classroom = get_object_or_404(Classroom, id=classroom_id, teacher=teacher)
-            student = get_object_or_404(Student, id=student_id)
-            # ManyToMany between Student and Classroom
-            student.classroom.remove(classroom)
-
-        # Delete a classroom entirely
-        elif action == "delete_classroom":
-            classroom_id = request.POST.get("classroom_id")
-            Classroom.objects.filter(id=classroom_id, teacher=teacher).delete()
-
-        return redirect("teacher_dashboard")
+        # attach per-user checklists if they exist
+        context["powershell_checklist"] = getattr(
+            self.request.user, "powershell_checklist", None
+        )
+        context["bash_checklist"] = getattr(self.request.user, "bash_checklist", None)
+        return context
 
 
-@method_decorator(login_required, name="dispatch")
-class StudenDashBoardView(TemplateView):
+class StudenDashBoardView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/StudentDash.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role != "student":
-            return redirect("home")
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        user = self.request.user
-        student = getattr(user, "student_profile", None)
-        classes = (
-            student.classroom.select_related("teacher__user")
-            if student
-            else Classroom.objects.none()
+        context = super().get_context_data(**kwargs)
+        student = Student.objects.get(user=self.request.user)
+        context["student"] = student
+        context["classrooms"] = student.classroom.all()
+
+        context["powershell_checklist"] = getattr(
+            self.request.user, "powershell_checklist", None
         )
-        ctx["student"] = student
-        ctx["classes"] = classes
-        ctx.setdefault("error", None)
-        ctx.setdefault("success", None)
-        return ctx
-
-    def post(self, request, *args, **kwargs):
-        student = request.user.student_profile
-        code = request.POST.get("classroom_code", "").strip().upper()
-
-        ctx = self.get_context_data()
-
-        if not code:
-            ctx["error"] = "Please enter a classroom code."
-            return self.render_to_response(ctx)
-
-        try:
-            classroom = Classroom.objects.get(code=code)
-        except Classroom.DoesNotExist:
-            ctx["error"] = "No Classroom found with that code."
-            return self.render_to_response(ctx)
-
-        student.classroom.add(classroom)
-        ctx["success"] = f"You joined {classroom.name}!"
-        ctx["classes"] = student.classroom.select_related("teacher__user")
-        return self.render_to_response(ctx)
+        context["bash_checklist"] = getattr(self.request.user, "bash_checklist", None)
+        return context
 
 
-class PersonalDashBoardView(TemplateView):
+class PersonalDashBoardView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/PersonalDash.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated or request.user.role != "personal":
-            return redirect("home")
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["user"] = self.request.user
-        return ctx
+        context = super().get_context_data(**kwargs)
+        context["user"] = self.request.user
+
+        context["powershell_checklist"] = getattr(
+            self.request.user, "powershell_checklist", None
+        )
+        context["bash_checklist"] = getattr(self.request.user, "bash_checklist", None)
+        return context
 
 
 @login_required
@@ -225,6 +174,7 @@ class SettingsView(LoginRequiredMixin, View):
             password_form = CustomPasswordChangeForm(user=user)
             if profile_form.is_valid():
                 profile_form.save()
+
         # change password
         elif action == "change_password":
             profile_form = ProfileUpdateForm(instance=user)
@@ -233,11 +183,36 @@ class SettingsView(LoginRequiredMixin, View):
                 user = password_form.save()
                 # keep user logged in after password change
                 update_session_auth_hash(request, user)
+
         # delete account
         elif action == "delete_account":
-            # delete the user and redirect to home (or signin)
             user.delete()
             return redirect("home")
+
+        # NEW: reset PS + Bash checklists for this user
+        elif action == "reset_checklists":
+            # reset any existing PowerShell checklist
+            PowerShellChecklist.objects.filter(user=user).update(
+                list_files=False,
+                system_info=False,
+                move_location=False,
+                read_write=False,
+                manipulate_files=False,
+                navigate=False,
+            )
+            # reset any existing Bash checklist
+            BashChecklist.objects.filter(user=user).update(
+                list_files=False,
+                system_info=False,
+                move_location=False,
+                read_write=False,
+                manipulate_files=False,
+                navigate=False,
+            )
+
+            # reload forms normally
+            profile_form = ProfileUpdateForm(instance=user)
+            password_form = CustomPasswordChangeForm(user=user)
 
         else:
             # fallback – just reload with current data

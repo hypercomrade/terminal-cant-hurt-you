@@ -2,58 +2,38 @@
 {% load static %}
 
 {% block extra_head %}
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start 2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+
 <style>
-/* Flex container for hero + terminals */
-/* Hero + Terminal Grid */
+
+/* --- MAIN PAGE GRID LAYOUT -------------------------------------------------- */
+
 .hero-terminal-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Welcome box = 2 parts, Terminal box = 1 part */
+    grid-template-columns: 2fr 1fr;
     gap: 20px;
     max-width: 1400px;
     margin: 20px auto;
 }
 
 .action-button.get-started {
-    padding: 20px 40px;       /* bigger padding */
-    font-size: 40px;           /* bigger text */
-    min-width: 250px;          /* wider button */
+    padding: 20px 40px;
+    font-size: 40px;
+    min-width: 250px;
     background: #FD91C6;
 }
 
-/* Welcome box styling */
-.hero-description-box {
-    background: white;
-    border: 8px solid #000;
-    padding: 40px 40px;
-    box-shadow: 6px 6px 0 #000;
-}
+/* --- BOX STYLING ------------------------------------------------------------ */
 
-/* Terminal preview box styling */
+.hero-description-box,
 .terminal-preview-box {
     background: white;
     border: 8px solid #000;
-    padding: 20px;
+    padding: 40px;
     box-shadow: 6px 6px 0 #000;
 }
 
-/* Terminal header */
-.terminal-preview-box h2 {
-    font-family: 'Press Start 2P', cursive;
-    font-size: 1.5em;
-    margin-bottom: 15px;
-    text-align: center;
-}
-
-/* Terminal cards stacked vertically */
-.terminal-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Individual terminal card */
 .terminal-card {
     background: white;
     border: 4px solid #000;
@@ -62,14 +42,20 @@
     text-align: center;
 }
 
+.terminal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-
-/* Responsive: stack vertically on smaller screens */
+/* Responsive fix */
 @media (max-width: 900px) {
     .hero-terminal-grid {
-        grid-template-columns: 1fr; /* stack hero and terminal */
+        grid-template-columns: 1fr;
     }
 }
+
+/* --- THEME OVERRIDES -------------------------------------------------------- */
 
 html.theme-dark .hero-description-box,
 html.theme-dark .terminal-preview-box,
@@ -79,21 +65,120 @@ html.theme-minecraft .hero-description-box,
 html.theme-minecraft .terminal-preview-box,
 html.theme-minecraft .terminal-card,
 html.theme-minecraft .feature-box {
-    background: #404042;
+    background: #5a5c60;
+    color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------- */
+/*                          DROPDOWN BUTTON STYLING                           */
+/* --------------------------------------------------------------------------- */
+
+.dropdown-wrapper {
+    display: inline-flex;
+    position: relative;
+}
+
+/* Main button half (uses .action-button.secondary / .tertiary colors) */
+.dropdown-main-btn {
+    border-right-width: 2px;
+    border-radius: 0;
+}
+
+/* Smaller caret button */
+.dropdown-toggle-btn {
+    padding: 4px 8px;
+    min-width: 26px;
+    font-size: 14px;
+    line-height: 1;
+    border-left: 2px solid #000;
+    box-shadow: 4px 4px 0 #000;
+    border-radius: 0;
+}
+
+/* Base dropdown menu */
+.dropdown-menu-custom {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 0;
+    display: none;
+    z-index: 30;
+
+    border: 4px solid #000;
+    box-shadow: 6px 6px 0 #000;
+}
+
+/* Color variants – LIGHT THEME (no extra theme class on html) */
+html:not(.theme-dark):not(.theme-minecraft) .dropdown-menu-secondary {
+    background: #FFF026;   /* same as .action-button.secondary */
+    color: #000;
+}
+html:not(.theme-dark):not(.theme-minecraft) .dropdown-menu-tertiary {
+    background: #91C6FD;   /* same as .action-button.tertiary */
+    color: #000;
+}
+
+/* DARK THEME */
+html.theme-dark .dropdown-menu-secondary {
+    background: #b8a51b;   /* dark yellow secondary */
+    color: #fff;
+}
+html.theme-dark .dropdown-menu-tertiary {
+    background: #4e8bd9;   /* dark blue tertiary */
+    color: #fff;
+}
+
+/* MINECRAFT THEME */
+html.theme-minecraft .dropdown-menu-secondary {
+    background: #5947a5;   /* purple secondary in Minecraft */
+    color: #000;
+}
+html.theme-minecraft .dropdown-menu-tertiary {
+    background: #1f1e25;   /* your requested tertiary */
+    color: #fff;
+}
+
+/* Show dropdown */
+.dropdown-menu-custom.show {
+    display: block;
+}
+
+/* Dropdown items */
+.dropdown-menu-custom li a {
+    display: block;
+    padding: 12px 18px;
+    font-size: 14px;
+    text-decoration: none;
+    border-bottom: 4px solid #000;
+    color: inherit;         /* inherit from menu variant */
+    background: transparent;
+}
+
+.dropdown-menu-custom li:last-child a {
+    border-bottom: none;
+}
+
+.dropdown-menu-custom li a:hover {
+    background: rgba(255,255,255,0.18);
 }
 
 </style>
 {% endblock %}
 
-{% block content %}
-<div class="home-layout">
 
+{% block content %}
+
+<div class="home-layout">
     <div class="main-column">
 
-        <!-- HERO + TERMINAL GRID -->
+        <!-- ////////////////////////////////////////////////////////////// -->
+        <!-- LEFT SIDE: WELCOME PANEL                                      -->
+        <!-- ////////////////////////////////////////////////////////////// -->
+
         <div class="hero-terminal-grid">
 
-            <!-- LEFT: Welcome box -->
             <div class="hero-description-box">
                 {% if user.is_authenticated %}
                     <h1 class="hero-title">Welcome back, {{ user.username }}</h1>
@@ -107,40 +192,120 @@ html.theme-minecraft .feature-box {
                     </h3>
                 {% endif %}
 
-    <!-- Get Started / Go to Account button -->
-                   <div class="action-buttons">
-                        {% if not user.is_authenticated %}
+                <!-- Go To Account button -->
+                <div class="action-buttons">
+                    {% if not user.is_authenticated %}
                         <a href="{% url 'signup' %}" class="action-button get-started">Get Started</a>
-                        {% else %}
-                            {% if user.role == 'teacher' %}
-                                    <a href="{% url 'teacher_dashboard' %}" class="action-button get-started">Go to Account</a>
-                            {% elif user.role == 'student' %}
-                                    <a href="{% url 'student_dashboard' %}" class="action-button get-started">Go to Account</a>
-                            {% elif user.role == 'personal' %}
-                                    <a href="{% url 'personal_dashboard' %}" class="action-button get-started">Go to Account</a>
-                            {% endif %}
+                    {% else %}
+                        {% if user.role == 'teacher' %}
+                            <a href="{% url 'teacher_dashboard' %}" class="action-button get-started">Go to Account</a>
+                        {% elif user.role == 'student' %}
+                            <a href="{% url 'student_dashboard' %}" class="action-button get-started">Go to Account</a>
+                        {% elif user.role == 'personal' %}
+                            <a href="{% url 'personal_dashboard' %}" class="action-button get-started">Go to Account</a>
                         {% endif %}
-                    </div>
+                    {% endif %}
+                </div>
             </div>
 
-            <!-- RIGHT: Terminal preview -->
+
+            <!-- ////////////////////////////////////////////////////////////// -->
+            <!-- RIGHT SIDE: TERMINAL BUTTONS                                  -->
+            <!-- ////////////////////////////////////////////////////////////// -->
+
             <div class="terminal-preview-box">
                 <h3>Take a sneak peek at the terminals</h3>
+
                 <div class="terminal-buttons">
+
+                    <!-- BASH BUTTON -->
                     <div class="terminal-card">
-                        <a href="{% url 'bash_sandbox' %}" class="action-button secondary">Bash</a>
+
+                        {% if user.is_authenticated and user.role != 'student' %}
+                        <!-- Split button for teachers / personal -->
+                        <div class="dropdown-wrapper">
+
+                            <!-- Main (default sandbox) -->
+                            <a href="{% url 'bash_sandbox' %}"
+                               class="action-button secondary dropdown-main-btn">
+                                Bash
+                            </a>
+
+                            <!-- Caret -->
+                            <button type="button"
+                                    class="action-button secondary dropdown-toggle-btn bash-toggle">
+                                ▾
+                            </button>
+
+                            <!-- Dropdown (yellow / secondary colors per theme) -->
+                            <ul class="dropdown-menu-custom dropdown-menu-secondary">
+                                <li><a href="{% url 'bash_sandbox' %}">Sandbox</a></li>
+                                <li><a href="{% url 'bash_terminal' %}">Checklist</a></li>
+                            </ul>
+                        </div>
+
+                        {% else %}
+                            <!-- Students: checklist only; logged-out: sandbox only -->
+                            <a href="{% if user.is_authenticated %}{% url 'bash_terminal' %}{% else %}{% url 'bash_sandbox' %}{% endif %}"
+                               class="action-button secondary">
+                               Bash
+                            </a>
+                        {% endif %}
+
                         <h3>Unix shell environment, used in Linux and macOS</h3>
                     </div>
+
+
+                    <!-- POWERSHELL BUTTON -->
                     <div class="terminal-card">
-                        <a href="{% if user.role == 'student' %}{% url 'powershell_terminal' %}{% else %}{% url 'powershell_sandbox' %}{% endif %}" class="action-button tertiary">PowerShell</a>
+
+                        {% if user.is_authenticated %}
+                            {% if user.role == 'teacher' or user.role == 'personal' %}
+                            <!-- Split button -->
+                            <div class="dropdown-wrapper">
+                                <!-- Main -->
+                                <a href="{% url 'powershell_sandbox' %}"
+                                   class="action-button tertiary dropdown-main-btn">
+                                    PowerShell
+                                </a>
+
+                                <!-- Caret -->
+                                <button type="button"
+                                        class="action-button tertiary dropdown-toggle-btn ps-toggle">
+                                    ▾
+                                </button>
+
+                                <!-- Dropdown (blue / tertiary colors per theme) -->
+                                <ul class="dropdown-menu-custom dropdown-menu-tertiary">
+                                    <li><a href="{% url 'powershell_sandbox' %}">Sandbox</a></li>
+                                    <li><a href="{% url 'powershell_terminal' %}">Checklist</a></li>
+                                </ul>
+                            </div>
+
+                            {% elif user.role == 'student' %}
+                                <a href="{% url 'powershell_terminal' %}" class="action-button tertiary">PowerShell</a>
+                            {% else %}
+                                <a href="{% url 'powershell_sandbox' %}" class="action-button tertiary">PowerShell</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'powershell_sandbox' %}" class="action-button tertiary">
+                                PowerShell
+                            </a>
+                        {% endif %}
+
                         <h3>Windows shell environment</h3>
                     </div>
+
                 </div>
             </div>
 
         </div>
 
-        <!-- Features Section -->
+
+        <!-- ////////////////////////////////////////////////////////////// -->
+        <!-- FEATURE GRID (unchanged)                                      -->
+        <!-- ////////////////////////////////////////////////////////////// -->
+
         <div class="feature-grid">
             <div class="feature-box">
                 <div class="feature-icon">🔧</div>
@@ -165,7 +330,45 @@ html.theme-minecraft .feature-box {
         </div>
 
     </div>
-
 </div>
+
+<!-- ======================================================================= -->
+<!--                          DROPDOWN JS                                    -->
+<!-- ======================================================================= -->
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    function setupDropdown(selector) {
+        const toggles = document.querySelectorAll(selector);
+
+        toggles.forEach(btn => {
+            btn.addEventListener("click", e => {
+                e.stopPropagation();
+                const wrapper = btn.closest(".dropdown-wrapper");
+                const menu = wrapper.querySelector(".dropdown-menu-custom");
+
+                // Close others
+                document.querySelectorAll(".dropdown-menu-custom.show").forEach(openMenu => {
+                    if (openMenu !== menu) openMenu.classList.remove("show");
+                });
+
+                menu.classList.toggle("show");
+            });
+        });
+
+        // Global click closes dropdowns
+        document.addEventListener("click", () => {
+            document.querySelectorAll(".dropdown-menu-custom.show").forEach(menu =>
+                menu.classList.remove("show")
+            );
+        });
+    }
+
+    setupDropdown(".ps-toggle");
+    setupDropdown(".bash-toggle");
+
+});
+</script>
 
 {% endblock %}
