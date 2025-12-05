@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Terminal Can't Hurt You{% endblock %}</title>
@@ -36,21 +37,21 @@
                 }
             } catch (e) { }
 
-                 // Logo swap helper, used on load and when theme changes
-                 // Logo "swap" helper: change FONT instead of an image
+            // Logo swap helper, used on load and when theme changes
             // Logo "swap" helper: change FONT instead of an image
-        function updateLogo() {
-            var logoText = document.querySelector('.logo-text');
-            if (!logoText) return;
-        
-            if (document.documentElement.classList.contains('theme-minecraft')) {
-                // Minecraft theme: logo uses MinecraftRegular
-                logoText.style.fontFamily = '"MinecraftRegular", "Press Start 2P", cursive';
-            } else {
-                // Light + dark: default logo font
-                logoText.style.fontFamily = '"Press Start 2P", cursive';
+            // Logo "swap" helper: change FONT instead of an image
+            function updateLogo() {
+                var logoText = document.querySelector('.logo-text');
+                if (!logoText) return;
+
+                if (document.documentElement.classList.contains('theme-minecraft')) {
+                    // Minecraft theme: logo uses MinecraftRegular
+                    logoText.style.fontFamily = '"MinecraftRegular", "Press Start 2P", cursive';
+                } else {
+                    // Light + dark: default logo font
+                    logoText.style.fontFamily = '"Press Start 2P", cursive';
+                }
             }
-        }
 
 
             document.addEventListener('DOMContentLoaded', updateLogo);
@@ -90,7 +91,7 @@
         .site-header {
             overflow: visible !important;
             height: auto !important;
-    }
+        }
 
         .logo-title {
             font-family: 'Press Start 2P', cursive;
@@ -100,23 +101,25 @@
             text-transform: uppercase;
             text-decoration: none;
         }
-html.theme-minecraft .logo-title{
-            font-family: 'MinecraftTen', cursive;
-            font-size: 1.6em;
+
+        html.theme-minecraft .logo-title {
+            font-family: "MinecraftTen", "MinecraftRegular", "Press Start 2P", cursive !important;
+            font-size: 2.5em;
             font-weight: bold;
-            color: #000000ff;
+            color: #000000 !important;
+            /* keep it black in Minecraft mode */
             text-transform: uppercase;
             text-decoration: none;
-}
+        }
 
-html.theme-dark .logo-title{
+        html.theme-dark .logo-title {
             font-family: 'Press Start 2P', cursive;
             font-size: 1.6em;
             font-weight: bold;
             color: #ffffffff;
             text-transform: uppercase;
             text-decoration: none;
-}
+        }
 
         /* Profile + Dropdown */
         .profile-area {
@@ -183,7 +186,7 @@ html.theme-dark .logo-title{
             right: 0;
             left: unset;
             transform: translateX(0);
-    }
+        }
 
         .dropdown-menu.open {
             display: block;
@@ -207,7 +210,7 @@ html.theme-dark .logo-title{
             color: #000000;
         }
 
-        
+
 
 
         .page-container {
@@ -221,59 +224,58 @@ html.theme-dark .logo-title{
 </head>
 
 <body>
-<header class="site-header">
-    <div class="header-left">
-        <a href="/" class="logo-title"> :~$ TERMINAL CAN'T HURT YOU</a>
-    </div>
+    <header class="site-header">
+        <div class="header-left">
+            <a href="/" class="logo-title"> :~$ TERMINAL CAN'T HURT YOU</a>
+        </div>
 
-    <div class="header-right">
-        <div class="profile-area">
-            <div class="profile-pic"></div>
-            <div class="dropdown">
-                <button class="dropdown-toggle">☰</button>
-                <div class="dropdown-menu">
-                    {% if not user.is_authenticated %}
+        <div class="header-right">
+            <div class="profile-area">
+                <div class="profile-pic"></div>
+                <div class="dropdown">
+                    <button class="dropdown-toggle">☰</button>
+                    <div class="dropdown-menu">
+                        {% if not user.is_authenticated %}
                         <a href="{% url 'signin' %}">Sign In</a>
                         <a href="{% url 'signup' %}">Sign Up</a>
-                    {% else %}
+                        {% else %}
                         {% if user.role == 'teacher' %}
-                            <a href="{% url 'teacher_dashboard' %}">My Account</a>
+                        <a href="{% url 'teacher_dashboard' %}">My Account</a>
                         {% elif user.role == 'student' %}
-                            <a href="{% url 'student_dashboard' %}">My Account</a>
+                        <a href="{% url 'student_dashboard' %}">My Account</a>
                         {% elif user.role == 'personal' %}
-                            <a href="{% url 'personal_dashboard' %}">My Account</a>
+                        <a href="{% url 'personal_dashboard' %}">My Account</a>
                         {% endif %}
                         <a href="{% url 'settings' %}">Settings</a>
                         <a href="{% url 'logout' %}">Logout</a>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<main class="page-container">
-    {% block content %}{% endblock %}
-</main>
+    <main class="page-container">
+        {% block content %}{% endblock %}
+    </main>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const dropdown = document.querySelector(".dropdown-toggle");
-    const menu = document.querySelector(".dropdown-menu");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dropdown = document.querySelector(".dropdown-toggle");
+            const menu = document.querySelector(".dropdown-menu");
 
-    dropdown.addEventListener("click", function (e) {
-        e.stopPropagation();
-        menu.classList.toggle("open");
-    });
+            dropdown.addEventListener("click", function (e) {
+                e.stopPropagation();
+                menu.classList.toggle("open");
+            });
 
-    // Close menu when clicking outside
-    document.addEventListener("click", function () {
-        menu.classList.remove("open");
-    });
-});
-</script>
+            // Close menu when clicking outside
+            document.addEventListener("click", function () {
+                menu.classList.remove("open");
+            });
+        });
+    </script>
 
 </body>
+
 </html>
-
-
