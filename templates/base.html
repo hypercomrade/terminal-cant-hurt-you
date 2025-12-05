@@ -7,6 +7,9 @@
     <title>{% block title %}Terminal Can't Hurt You{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
     <!-- Main site styles -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
@@ -35,19 +38,21 @@
             } catch (e) { }
 
             // Logo swap helper, used on load and when theme changes
+            // Logo "swap" helper: change FONT instead of an image
+            // Logo "swap" helper: change FONT instead of an image
             function updateLogo() {
-                var img = document.getElementById('site-logo');
-                if (!img) return;
+                var logoText = document.querySelector('.logo-text');
+                if (!logoText) return;
 
-                var normalSrc = img.getAttribute('data-logo-normal');
-                var minecraftSrc = img.getAttribute('data-logo-minecraft');
-
-                if (document.documentElement.classList.contains('theme-minecraft') && minecraftSrc) {
-                    img.src = minecraftSrc;
-                } else if (normalSrc) {
-                    img.src = normalSrc;
+                if (document.documentElement.classList.contains('theme-minecraft')) {
+                    // Minecraft theme: logo uses MinecraftRegular
+                    logoText.style.fontFamily = '"MinecraftRegular", "Press Start 2P", cursive';
+                } else {
+                    // Light + dark: default logo font
+                    logoText.style.fontFamily = '"Press Start 2P", cursive';
                 }
             }
+
 
             document.addEventListener('DOMContentLoaded', updateLogo);
 
@@ -55,31 +60,157 @@
             window.updateThemeLogo = updateLogo;
         })();
     </script>
-
     <style>
         body {
             margin: 0;
             font-family: 'Courier New', Courier, monospace;
         }
 
+        /* New Global Header */
         .site-header {
-            background-color: #000;
-            border-bottom: 1px solid #000;
-            padding: 16px 0;
+            width: 100%;
+            background: white;
+            border-bottom: 4px solid #000;
+            padding: 10px 20px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            box-shadow: 4px 4px 0 #000;
         }
 
-        .logo-link {
-            display: inline-block;
+        .site-header {
+            overflow-x: hidden;
         }
 
-        .site-logo {
-            height: 130px;
-            max-width: 100%;
+        .site-header {
+            box-sizing: border-box;
+            max-width: 100vw;
+        }
+
+        .site-header {
+            overflow: visible !important;
+            height: auto !important;
+        }
+
+        .logo-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #000;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        html.theme-minecraft .logo-title {
+            font-family: "MinecraftTen", "MinecraftRegular", "Press Start 2P", cursive !important;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #000000 !important;
+            /* keep it black in Minecraft mode */
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        html.theme-dark .logo-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #ffffffff;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        /* Profile + Dropdown */
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-pic {
+            width: 50px;
+            height: 50px;
+            background: #ccc;
+            border: 3px solid #000;
+            border-radius: 50%;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            background: white;
+            border: 3px solid #000;
+            padding: 5px 12px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #000;
+        }
+
+        .dropdown-toggle:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 60px;
+            background: white;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            min-width: 150px;
+            z-index: 20;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+            color: black;
+            text-decoration: none;
+            border-bottom: 2px solid #000;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-menu {
+            right: 0;
+            left: unset;
+            transform: translateX(0);
+        }
+
+        .dropdown-menu.open {
             display: block;
         }
+
+        /* Dark + Minecraft: dropdown should be gray with readable text */
+        html.theme-dark .dropdown-toggle,
+        html.theme-minecraft .dropdown-toggle {
+            background: #c9cbcd;
+            color: #000000;
+        }
+
+        html.theme-dark .dropdown-menu,
+        html.theme-minecraft .dropdown-menu {
+            background: #c9cbcd;
+        }
+
+        html.theme-dark .dropdown-menu a,
+        html.theme-minecraft .dropdown-menu a {
+            background: #c9cbcd;
+            color: #000000;
+        }
+
+
+
 
         .page-container {
             max-width: 1300px;
@@ -87,17 +218,62 @@
             padding: 20px;
         }
     </style>
+
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
     <header class="site-header">
-        <a href="{% url 'home' %}" class="logo-link">
-            <img id="site-logo" src="{% static 'images/tchu_logo.png' %}"
-                data-logo-normal="{% static 'images/tchu_logo.png' %}"
-                data-logo-minecraft="{% static 'images/TCHUMine.png' %}" alt="Terminal Can't Hurt You"
-                class="site-logo">
-        </a>
+        <div class="header-left">
+            <a href="/" class="logo-title"> :~$ TERMINAL CAN'T HURT YOU</a>
+        </div>
+
+        <div class="header-right">
+            <div class="profile-area">
+                <div class="profile-pic"></div>
+                <div class="dropdown">
+                    <button class="dropdown-toggle">☰</button>
+                    <div class="dropdown-menu">
+                        {% if not user.is_authenticated %}
+                        <a href="{% url 'signin' %}">Sign In</a>
+                        <a href="{% url 'signup' %}">Sign Up</a>
+                        {% else %}
+                        {% if user.role == 'teacher' %}
+                        <a href="{% url 'teacher_dashboard' %}">My Account</a>
+                        {% elif user.role == 'student' %}
+                        <a href="{% url 'student_dashboard' %}">My Account</a>
+                        {% elif user.role == 'personal' %}
+                        <a href="{% url 'personal_dashboard' %}">My Account</a>
+                        {% endif %}
+                        <a href="{% url 'settings' %}">Settings</a>
+                        <a href="{% url 'logout' %}">Logout</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
+
+    <main class="page-container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dropdown = document.querySelector(".dropdown-toggle");
+            const menu = document.querySelector(".dropdown-menu");
+
+            dropdown.addEventListener("click", function (e) {
+                e.stopPropagation();
+                menu.classList.toggle("open");
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener("click", function () {
+                menu.classList.remove("open");
+            });
+        });
+    </script>
 
     <main class="page-container">
         {% block content %}{% endblock %}

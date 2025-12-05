@@ -1,94 +1,170 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
-
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<style>
+/* Flex container for hero + terminals */
+/* Hero + Terminal Grid */
+.hero-terminal-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Welcome box = 2 parts, Terminal box = 1 part */
+    gap: 20px;
+    max-width: 1400px;
+    margin: 20px auto;
+}
 
+.action-button.get-started {
+    padding: 20px 40px;       /* bigger padding */
+    font-size: 40px;           /* bigger text */
+    min-width: 250px;          /* wider button */
+    background: #FD91C6;
+}
+
+/* Welcome box styling */
+.hero-description-box {
+    background: white;
+    border: 8px solid #000;
+    padding: 40px 40px;
+    box-shadow: 6px 6px 0 #000;
+}
+
+/* Terminal preview box styling */
+.terminal-preview-box {
+    background: white;
+    border: 8px solid #000;
+    padding: 20px;
+    box-shadow: 6px 6px 0 #000;
+}
+
+/* Terminal header */
+.terminal-preview-box h2 {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Terminal cards stacked vertically */
+.terminal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Individual terminal card */
+.terminal-card {
+    background: white;
+    border: 4px solid #000;
+    padding: 20px;
+    box-shadow: 6px 6px 0 #000;
+    text-align: center;
+}
+
+
+
+/* Responsive: stack vertically on smaller screens */
+@media (max-width: 900px) {
+    .hero-terminal-grid {
+        grid-template-columns: 1fr; /* stack hero and terminal */
+    }
+}
+
+html.theme-dark .hero-description-box,
+html.theme-dark .terminal-preview-box,
+html.theme-dark .terminal-card,
+html.theme-dark .feature-box,
+html.theme-minecraft .hero-description-box,
+html.theme-minecraft .terminal-preview-box,
+html.theme-minecraft .terminal-card,
+html.theme-minecraft .feature-box {
+    background: #404042;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
 <div class="home-layout">
 
-    <!-- MAIN CENTER COLUMN -->
     <div class="main-column">
 
-        <div class="hero-section pixel-border2">
-            <h1 class="hero-title">Welcome</h1>
-            <p class="hero-subtitle">Access multiple terminal environments in one place</p>
+        <!-- HERO + TERMINAL GRID -->
+        <div class="hero-terminal-grid">
 
-            <div class="action-buttons">
-                <a href="{% url 'zsh_terminal' %}" class="action-button primary">
-                    🖥️ ZSH TERMINAL
-                </a>
-                <a href="{% url 'bash_sandbox' %}" class="action-button secondary">
-                    💻 BASH TERMINAL
-                </a>
-                <a href="{% if user.role == 'student' %}{% url 'powershell_terminal' %}{% else %}{% url 'powershell_sandbox' %}{% endif %}" class="action-button tertiary">
-                    ⚡ POWERSHELL
-                </a>
+            <!-- LEFT: Welcome box -->
+            <div class="hero-description-box">
+                {% if user.is_authenticated %}
+                    <h1 class="hero-title">Welcome back, {{ user.username }}</h1>
+                {% else %}
+                    <h1 class="hero-title">Welcome to TCHY</h1>
+                    <p class="hero-subtitle">Access multiple terminal environments in one place</p>
+                    <h3 class="hero-description">
+                        New to the terminal? We're here to show you it's not that scary! 
+                        Learn how to use Bash and PowerShell through simulated terminal environments. 
+                        Each shell has guided lesson plans to teach and build up your skills.
+                    </h3>
+                {% endif %}
+
+    <!-- Get Started / Go to Account button -->
+                   <div class="action-buttons">
+                        {% if not user.is_authenticated %}
+                        <a href="{% url 'signup' %}" class="action-button get-started">Get Started</a>
+                        {% else %}
+                            {% if user.role == 'teacher' %}
+                                    <a href="{% url 'teacher_dashboard' %}" class="action-button get-started">Go to Account</a>
+                            {% elif user.role == 'student' %}
+                                    <a href="{% url 'student_dashboard' %}" class="action-button get-started">Go to Account</a>
+                            {% elif user.role == 'personal' %}
+                                    <a href="{% url 'personal_dashboard' %}" class="action-button get-started">Go to Account</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
             </div>
+
+            <!-- RIGHT: Terminal preview -->
+            <div class="terminal-preview-box">
+                <h3>Take a sneak peek at the terminals</h3>
+                <div class="terminal-buttons">
+                    <div class="terminal-card">
+                        <a href="{% url 'bash_sandbox' %}" class="action-button secondary">Bash</a>
+                        <h3>Unix shell environment, used in Linux and macOS</h3>
+                    </div>
+                    <div class="terminal-card">
+                        <a href="{% url 'powershell_sandbox' %}" class="action-button tertiary">PowerShell</a>
+                        <h3>Windows shell environment</h3>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
+        <!-- Features Section -->
         <div class="feature-grid">
             <div class="feature-box">
                 <div class="feature-icon">🔧</div>
                 <h3 class="feature-title">MULTIPLE ENVIRONMENTS</h3>
                 <p>ZSH, Bash, PowerShell - all in one platform</p>
             </div>
-
             <div class="feature-box">
                 <div class="feature-icon">👥</div>
                 <h3 class="feature-title">ROLE-BASED ACCESS</h3>
                 <p>Different interfaces for students and teachers</p>
             </div>
+            <div class="feature-box">
+                <div class="feature-icon">📚</div>
+                <h3 class="feature-title">GUIDED LESSONS</h3>
+                <p>Step-by-step tutorials to help you master terminal commands and scripting.</p>
+            </div>
+            <div class="feature-box">
+                <div class="feature-icon">⚡</div>
+                <h3 class="feature-title">FAST & EASY</h3>
+                <p>Instant access to terminal environments without installation.</p>
+            </div>
         </div>
 
     </div>
-
-    <!-- AUTHENTICATION SIDEBAR -->
-    <aside class="auth-sidebar">
-        {% if not user.is_authenticated %}
-        <div class="hero-section auth-card">
-            <h2 style="font-family: 'Courier New', monospace; margin-top: 0;">
-                Get Started Today
-            </h2>
-            <div class="action-buttons">
-                <a href="{% url 'signup' %}" class="action-button primary">
-                    Sign Up
-                </a>
-                <a href="{% url 'signin' %}" class="action-button secondary">
-                    Sign In
-                </a>
-            </div>
-        </div>
-        {% else %}
-        <div class="hero-section auth-card">
-            <h2 style="font-family: 'Courier New', monospace; margin-top: 0;">
-                Hi, {{ user.username }}
-            </h2>
-            <div class="action-buttons">
-                {% if user.role == "teacher" %}
-                <a href="{% url 'teacher_dashboard' %}" class="action-button primary">
-                    My Account
-                </a>
-                {% elif user.role == "student" %}
-                <a href="{% url 'student_dashboard' %}" class="action-button primary">
-                    My Account
-                </a>
-                {% elif user.role == "personal" %}
-                <a href="{% url 'personal_dashboard' %}" class="action-button primary">
-                    My Account
-                </a>
-                {% endif %}
-                <a href="{% url 'settings' %}" class="action-button tertiary">
-                    Settings
-                </a>
-
-                <a href="{% url 'logout' %}" class="action-button secondary">
-                    Logout
-                </a>
-            </div>
-        </div>
-        {% endif %}
-    </aside>
 
 </div>
 

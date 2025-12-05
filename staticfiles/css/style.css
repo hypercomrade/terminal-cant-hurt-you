@@ -385,9 +385,15 @@ html.theme-minecraft .hero-section,
 html.theme-minecraft .feature-box,
 html.theme-minecraft .instruction-panel,
 html.theme-minecraft .checklist-item-card {
-    background: #404042;
+    background: #5a5c60;
     color: #ffffff;
 }
+
+/* Minecraft theme: control body text letter spacing via a variable */
+html.theme-minecraft {
+    --minecraft-body-letter-spacing: 0.08em; /* adjust this if you want tighter/looser text */
+}
+
 
 /* Header banner */
 html.theme-minecraft .site-header,
@@ -427,16 +433,45 @@ html.theme-minecraft .pixel-button.secondary {
 }
 
 /* Tertiary: dark panel gray (#1f1e25 requested) for extra actions */
+/* Minecraft theme: non-heading text uses MinecraftTen */
 html.theme-minecraft .nav-buttons a,
+html.theme-minecraft .nav-buttons span,
 html.theme-minecraft .setting-action-button,
 html.theme-minecraft .theme-option-button,
-html.theme-minecraft .action-button.tertiary,
-html.theme-minecraft .pixel-button.tertiary {
-    background: #1f1e25;
-    color: #ffffff;
-    border-color: #000000;
+html.theme-minecraft .pixel-button,
+html.theme-minecraft .action-button,
+html.theme-minecraft .dropdown-toggle,
+html.theme-minecraft .dropdown-menu a,
+html.theme-minecraft p,
+html.theme-minecraft li,
+html.theme-minecraft label,
+html.theme-minecraft input,
+html.theme-minecraft select,
+html.theme-minecraft button,
+html.theme-minecraft .hero-description,
+html.theme-minecraft .hero-subtitle,
+html.theme-minecraft .terminal-card h3 {
+    font-family: "MinecraftRegular", sans-serif !important;
+    letter-spacing: var(--minecraft-body-letter-spacing, 0.08em);
+    text-transform: uppercase;
+    font-weight: bold;
+    border-width: 4px;
     box-shadow: 4px 4px 0 #000000;
+    transition: all 0.1s ease;
 }
+
+/* Minecraft theme: headings + logo stay MinecraftRegular */
+html.theme-minecraft h1,
+html.theme-minecraft h2,
+html.theme-minecraft h3,
+html.theme-minecraft h4,
+html.theme-minecraft h5,
+html.theme-minecraft h6,
+html.theme-minecraft .logo-text {
+    font-family: "MinecraftTen", "Press Start 2P", cursive !important;
+    letter-spacing: 0.12em;
+}
+
 
 /* Hover effect in Minecraft theme */
 html.theme-minecraft .terminal-link:hover {
@@ -545,7 +580,7 @@ html.theme-minecraft h6,
 html.theme-minecraft .section-title,
 html.theme-minecraft .hero-title,
 html.theme-minecraft .welcome-title {
-    font-family: "MinecraftRegular", "Courier New", monospace !important;
+    font-family: "MinecraftTen", "Courier New", monospace !important;
 }
 
 /* Personal dashboard: use primary color on checklist blocks */
@@ -566,3 +601,16 @@ html:not(.theme-dark):not(.theme-minecraft) .checklist-item-card {
     /* light theme primary pink */
     color: #000 !important;
 }
+
+html.theme-dark .hero-description-box,
+html.theme-dark .terminal-preview-box,
+html.theme-dark .terminal-card,
+html.theme-dark .feature-box,
+html.theme-minecraft .hero-description-box,
+html.theme-minecraft .terminal-preview-box,
+html.theme-minecraft .terminal-card,
+html.theme-minecraft .feature-box {
+    background: #5a5c60;
+    color: #ffffff;
+}
+

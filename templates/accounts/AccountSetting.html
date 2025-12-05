@@ -230,7 +230,7 @@
 </script>
 
 <script>
-  // Theme + Minecraft unlock logic
+  // Theme + Minecraft unlock / disable logic
   (function () {
     const btnLight = document.getElementById("theme-light");
     const btnDark = document.getElementById("theme-dark");
@@ -270,10 +270,18 @@
       }
     }
 
+    function hideMinecraftButton() {
+    if (btnMinecraft) {
+        btnMinecraft.style.display = "none";
+    }
+}
+
+
     function applyThemeClass(theme) {
       const root = document.documentElement;
       const mcLink = document.getElementById("minecraft-css");
 
+      // Remove all theme classes we control here
       root.classList.remove("theme-dark", "theme-minecraft");
 
       if (theme === "dark") {
@@ -281,6 +289,7 @@
       } else if (theme === "minecraft") {
         root.classList.add("theme-minecraft");
       }
+      // theme === "light" → no extra class; light is default
 
       if (mcLink) {
         mcLink.disabled = (theme !== "minecraft");
@@ -352,20 +361,35 @@
       setStatus("Theme applied.");
     });
 
-    // Konami code: ↑ ↑ ↓ ↓ ← → ← → unlocks Minecraft mode
-    const konami = [
+    // Konami code sequences:
+    // Forward (unlock + enable Minecraft): ↑ ↑ ↓ ↓ ← → ← →
+    // Reverse (disable Minecraft, go to Dark): → ← → ← ↓ ↓ ↑ ↑
+    const konamiForward = [
       "ArrowUp", "ArrowUp",
       "ArrowDown", "ArrowDown",
       "ArrowLeft", "ArrowRight",
       "ArrowLeft", "ArrowRight"
     ];
-    let pos = 0;
+    const konamiReverse = [
+      "ArrowRight", "ArrowLeft",
+      "ArrowRight", "ArrowLeft",
+      "ArrowDown", "ArrowDown",
+      "ArrowUp", "ArrowUp"
+    ];
+
+    let posForward = 0;
+    let posReverse = 0;
 
     window.addEventListener("keydown", function (e) {
-      if (e.key === konami[pos]) {
-        pos++;
-        if (pos === konami.length) {
-          pos = 0;
+      const key = e.key;
+
+      // ---- Forward sequence: enable / unlock Minecraft ----
+      if (key === konamiForward[posForward]) {
+        posForward++;
+        if (posForward === konamiForward.length) {
+          posForward = 0;
+
+          // Mark unlocked
           try {
             localStorage.setItem("minecraftUnlocked", "yes");
           } catch (err) { }
@@ -381,7 +405,34 @@
           }
         }
       } else {
-        pos = 0;
+        // reset if wrong key; also check if current key is the start
+        posForward = (key === konamiForward[0]) ? 1 : 0;
+      }
+
+      // ---- Reverse sequence: turn OFF Minecraft (switch to Dark) ----
+      // ---- Reverse sequence: turn OFF Minecraft + HIDE button ----
+if (key === konamiReverse[posReverse]) {
+    posReverse++;
+    if (posReverse === konamiReverse.length) {
+        posReverse = 0;
+
+        // Re-lock Minecraft so the button disappears
+        try {
+            localStorage.setItem("minecraftUnlocked", "no");
+        } catch (e) { }
+
+        hideMinecraftButton();
+
+        // Switch back to dark mode
+        selectButton("dark");
+        applyThemeClass("dark");
+        saveTheme("dark");
+        setStatus("Minecraft mode disabled.");
+    }
+
+      } else {
+        // reset if wrong key; also check if current key is the start
+        posReverse = (key === konamiReverse[0]) ? 1 : 0;
       }
     });
 
