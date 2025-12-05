@@ -9,6 +9,56 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
+    <!-- Main site styles -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- Minecraft CSS framework (make sure this file exists in static/css/) -->
+    <link id="minecraft-css" rel="stylesheet" href="{% static 'css/minecraft-css-framework-v-1.0.0.css' %}" disabled>
+
+    <!-- Load stored theme as early as possible -->
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('siteTheme') || 'light';
+                var root = document.documentElement;
+                var mcLink = document.getElementById('minecraft-css');
+
+                root.classList.remove('theme-dark', 'theme-minecraft');
+
+                if (theme === 'dark') {
+                    root.classList.add('theme-dark');
+                } else if (theme === 'minecraft') {
+                    root.classList.add('theme-minecraft');
+                }
+
+                if (mcLink) {
+                    mcLink.disabled = (theme !== 'minecraft');
+                }
+            } catch (e) { }
+
+                 // Logo swap helper, used on load and when theme changes
+                 // Logo "swap" helper: change FONT instead of an image
+            // Logo "swap" helper: change FONT instead of an image
+        function updateLogo() {
+            var logoText = document.querySelector('.logo-text');
+            if (!logoText) return;
+        
+            if (document.documentElement.classList.contains('theme-minecraft')) {
+                // Minecraft theme: logo uses MinecraftRegular
+                logoText.style.fontFamily = '"MinecraftRegular", "Press Start 2P", cursive';
+            } else {
+                // Light + dark: default logo font
+                logoText.style.fontFamily = '"Press Start 2P", cursive';
+            }
+        }
+
+
+            document.addEventListener('DOMContentLoaded', updateLogo);
+
+            // Expose function globally so settings page can call it
+            window.updateThemeLogo = updateLogo;
+        })();
+    </script>
     <style>
         body {
             margin: 0;
@@ -42,7 +92,7 @@
             height: auto !important;
     }
 
-        .logo-text {
+        .logo-title {
             font-family: 'Press Start 2P', cursive;
             font-size: 1.6em;
             font-weight: bold;
@@ -50,6 +100,23 @@
             text-transform: uppercase;
             text-decoration: none;
         }
+html.theme-minecraft .logo-title{
+            font-family: 'MinecraftTen', cursive;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #000000ff;
+            text-transform: uppercase;
+            text-decoration: none;
+}
+
+html.theme-dark .logo-title{
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #ffffffff;
+            text-transform: uppercase;
+            text-decoration: none;
+}
 
         /* Profile + Dropdown */
         .profile-area {
@@ -122,6 +189,27 @@
             display: block;
         }
 
+        /* Dark + Minecraft: dropdown should be gray with readable text */
+        html.theme-dark .dropdown-toggle,
+        html.theme-minecraft .dropdown-toggle {
+            background: #c9cbcd;
+            color: #000000;
+        }
+
+        html.theme-dark .dropdown-menu,
+        html.theme-minecraft .dropdown-menu {
+            background: #c9cbcd;
+        }
+
+        html.theme-dark .dropdown-menu a,
+        html.theme-minecraft .dropdown-menu a {
+            background: #c9cbcd;
+            color: #000000;
+        }
+
+        
+
+
         .page-container {
             max-width: 1300px;
             margin: 0 auto;
@@ -135,7 +223,7 @@
 <body>
 <header class="site-header">
     <div class="header-left">
-        <a href="/" class="logo-text"> :~$ TERMINAL CAN'T HURT YOU</a>
+        <a href="/" class="logo-title"> :~$ TERMINAL CAN'T HURT YOU</a>
     </div>
 
     <div class="header-right">
