@@ -132,7 +132,7 @@ html.theme-minecraft .feature-box {
                         <h3>Unix shell environment, used in Linux and macOS</h3>
                     </div>
                     <div class="terminal-card">
-                        <a href="{% url 'powershell_sandbox' %}" class="action-button tertiary">PowerShell</a>
+                        <a href="{% if user.role == 'student' %}{% url 'powershell_terminal' %}{% else %}{% url 'powershell_sandbox' %}{% endif %}" class="action-button tertiary">PowerShell</a>
                         <h3>Windows shell environment</h3>
                     </div>
                 </div>
