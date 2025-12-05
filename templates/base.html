@@ -64,7 +64,6 @@
         body {
             margin: 0;
             font-family: 'Courier New', Courier, monospace;
-            background: #f8f8f8;
         }
 
         /* New Global Header */
@@ -276,6 +275,9 @@
         });
     </script>
 
+    <main class="page-container">
+        {% block content %}{% endblock %}
+    </main>
 </body>
 
 </html>
