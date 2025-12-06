@@ -86,21 +86,92 @@ class TeacherDashBoardView(LoginRequiredMixin, TemplateView):
         context["bash_checklist"] = getattr(self.request.user, "bash_checklist", None)
         return context
 
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        teacher = getattr(user, "teacher_profile", None)
+        if not teacher:
+            return redirect("home")
 
-class StudenDashBoardView(LoginRequiredMixin, TemplateView):
+        action = request.POST.get("action")
+
+        # Create classroom
+        if action == "create_classroom":
+            name = request.POST.get("classroom_name")
+            if name:
+                Classroom.objects.create(name=name, teacher=teacher)
+
+        # Remove a student from a classroom
+        elif action == "remove_student":
+            classroom_id = request.POST.get("classroom_id")
+            student_id = request.POST.get("student_id")
+
+            classroom = get_object_or_404(Classroom, id=classroom_id, teacher=teacher)
+            student = get_object_or_404(Student, id=student_id)
+            student.classroom.remove(classroom)
+
+        # Delete a classroom entirely
+        elif action == "delete_classroom":
+            classroom_id = request.POST.get("classroom_id")
+            if classroom_id:
+                Classroom.objects.filter(id=classroom_id, teacher=teacher).delete()
+
+        return redirect("teacher_dashboard")
+
+
+@method_decorator(login_required, name="dispatch")
+class StudenDashBoardView(TemplateView):
     template_name = "accounts/StudentDash.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        student = Student.objects.get(user=self.request.user)
-        context["student"] = student
-        context["classrooms"] = student.classroom.all()
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow student accounts here
+        if request.user.role != "student":
+            return redirect("home")
+        return super().dispatch(request, *args, **kwargs)
 
-        context["powershell_checklist"] = getattr(
-            self.request.user, "powershell_checklist", None
-        )
-        context["bash_checklist"] = getattr(self.request.user, "bash_checklist", None)
-        return context
+    def _get_student(self, user):
+        """
+        Always return a Student profile for this user.
+        If for some reason it doesn't exist yet, create it.
+        """
+        student, _created = Student.objects.get_or_create(user=user)
+        return student
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        student = self._get_student(self.request.user)
+
+        # All classes this student belongs to
+        classes = student.classroom.select_related("teacher__user")
+
+        ctx["student"] = student
+        ctx["classes"] = classes
+        ctx.setdefault("error", None)
+        ctx.setdefault("success", None)
+        return ctx
+
+    def post(self, request, *args, **kwargs):
+        student = self._get_student(request.user)
+        code = request.POST.get("classroom_code", "").strip().upper()
+
+        ctx = self.get_context_data()
+
+        if not code:
+            ctx["error"] = "Please enter a classroom code."
+            return self.render_to_response(ctx)
+
+        # Look up the classroom by code
+        try:
+            classroom = Classroom.objects.get(code=code)
+        except Classroom.DoesNotExist:
+            ctx["error"] = "No classroom found with that code."
+            return self.render_to_response(ctx)
+
+        # Add the student to that classroom
+        student.classroom.add(classroom)
+
+        ctx["success"] = f"You joined {classroom.name}!"
+        ctx["classes"] = student.classroom.select_related("teacher__user")
+        return self.render_to_response(ctx)
 
 
 class PersonalDashBoardView(LoginRequiredMixin, TemplateView):

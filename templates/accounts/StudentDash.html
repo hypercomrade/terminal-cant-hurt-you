@@ -408,6 +408,7 @@
                     <div class="classroom-name">{{ c.name }}</div>
                     <div class="classroom-teacher">
                         Teacher: {{ c.teacher.user.first_name }} {{ c.teacher.user.last_name }}
+                        ({{ c.teacher.user.email }})
                     </div>
                     <div class="classroom-code">Code: {{ c.code }}</div>
                 </li>
