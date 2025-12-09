@@ -140,3 +140,10 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+import sys
+
+if "test" in sys.argv:
+    STORAGES["staticfiles"][
+        "BACKEND"
+    ] = "django.contrib.staticfiles.storage.StaticFilesStorage"
