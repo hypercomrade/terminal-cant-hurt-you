@@ -211,7 +211,7 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label class="form-label">Username</label>
+                    <label class="form-label">Username (Case sensitive) </label>
                     <div class="input-with-icon">
                         <span class="input-icon"></span>
                         {{ form.username }}
@@ -226,7 +226,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Password</label>
+                    <label class="form-label">Password (Case sensitive)</label>
                     <div class="input-with-icon">
                         <span class="input-icon"></span>
                         {{ form.password }}
